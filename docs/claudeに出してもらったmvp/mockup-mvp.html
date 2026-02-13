@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>tvine - MVP Mockup (C案: PTY + xterm.js)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #1a1b23;
+    --bg-secondary: #22232e;
+    --bg-tertiary: #2a2b38;
+    --bg-hover: #32334a;
+    --bg-selected: #2d3555;
+    --border: #3a3b4a;
+    --text-primary: #e0e0e8;
+    --text-secondary: #8888a0;
+    --text-muted: #5a5a72;
+    --accent-green: #4ade80;
+    --accent-yellow: #facc15;
+    --accent-red: #f87171;
+    --accent-blue: #60a5fa;
+    --accent-purple: #a78bfa;
+    --diff-add-bg: #1a3a2a;
+    --diff-add-text: #6ee7a0;
+    --diff-del-bg: #3a1a1a;
+    --diff-del-text: #fca5a5;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ── Left Sidebar ── */
+  .sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-header {
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    height: 44px;
+  }
+
+  .sidebar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .btn-new {
+    background: var(--accent-blue);
+    color: #fff;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: background 0.15s;
+  }
+  .btn-new:hover { background: #4d94fa; }
+
+  .sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  .slot-indicator {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* worktree items */
+  .wt-item {
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    transition: background 0.12s;
+    border: 1px solid transparent;
+  }
+  .wt-item:hover { background: var(--bg-hover); }
+  .wt-item.selected {
+    background: var(--bg-selected);
+    border-color: var(--accent-blue);
+  }
+
+  .wt-item-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+
+  .wt-branch {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .wt-info-btn {
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: color 0.12s;
+  }
+  .wt-info-btn:hover { color: var(--accent-blue); }
+
+  .wt-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .wt-status.running {
+    background: rgba(74, 222, 128, 0.15);
+    color: var(--accent-green);
+  }
+  .wt-status.waiting {
+    background: rgba(250, 204, 21, 0.15);
+    color: var(--accent-yellow);
+  }
+  .wt-status.stopped {
+    background: rgba(90, 90, 114, 0.2);
+    color: var(--text-muted);
+  }
+
+  .wt-title {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .wt-base {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .wt-memo {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .wt-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+  }
+
+  .wt-delete {
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: all 0.12s;
+  }
+  .wt-delete:hover { color: var(--accent-red); background: rgba(248,113,113,0.1); }
+
+  .wt-detail-link {
+    font-size: 11px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.12s;
+  }
+  .wt-detail-link:hover { color: var(--accent-blue); }
+
+  /* ── Main Content (Terminal) ── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  /* Toolbar */
+  .toolbar {
+    height: 44px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-secondary);
+  }
+
+  .toolbar-branch {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .toolbar-spacer {
+    flex: 1;
+  }
+
+  .toolbar-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.12s;
+    flex-shrink: 0;
+  }
+  .toolbar-btn:hover {
+    border-color: var(--accent-blue);
+    background: var(--bg-hover);
+  }
+  .toolbar-btn.active {
+    border-color: var(--accent-blue);
+    background: var(--bg-selected);
+  }
+
+  /* Terminal area (xterm.js placeholder) */
+  .terminal-area {
+    flex: 1;
+    background: #000;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-y: auto;
+    color: #e0e0e0;
+  }
+
+  .terminal-area .focus-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 10px;
+    color: var(--text-muted);
+    background: var(--bg-tertiary);
+    padding: 2px 8px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .terminal-area:focus-within .focus-indicator {
+    opacity: 1;
+  }
+
+  /* Claude CLI mock rendering */
+  .cli-prompt {
+    color: #60a5fa;
+    font-weight: 600;
+  }
+
+  .cli-user-input {
+    color: #e0e0e8;
+  }
+
+  .cli-response {
+    color: #d4d4d8;
+    margin: 8px 0;
+    line-height: 1.7;
+  }
+
+  .cli-tool {
+    color: #a78bfa;
+    margin: 4px 0;
+  }
+
+  .cli-tool-icon {
+    color: #4ade80;
+  }
+
+  .cli-separator {
+    border-top: 1px solid #333;
+    margin: 12px 0;
+  }
+
+  .cli-permission {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 8px 0;
+  }
+
+  .cli-permission-title {
+    color: #facc15;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .cli-permission-detail {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  .cli-permission-options {
+    color: #60a5fa;
+    font-size: 12px;
+  }
+
+  .cli-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: #60a5fa;
+    animation: blink 1s step-end infinite;
+    vertical-align: text-bottom;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  .cli-code-block {
+    background: #1e1e2e;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 8px 0;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+
+  .cli-code-header {
+    color: #888;
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  .cli-keyword { color: #c678dd; }
+  .cli-string { color: #98c379; }
+  .cli-comment { color: #5c6370; font-style: italic; }
+  .cli-function { color: #61afef; }
+  .cli-type { color: #e5c07b; }
+
+  /* ── Terminal Panel ── */
+  .terminal-panel {
+    width: 40px;
+    min-width: 40px;
+    background: var(--bg-primary);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.2s ease, min-width 0.2s ease;
+    overflow: hidden;
+  }
+  .terminal-panel.open {
+    width: 360px;
+    min-width: 360px;
+  }
+
+  .terminal-panel .terminal-header,
+  .terminal-panel .terminal-body {
+    display: none;
+  }
+  .terminal-panel.open .terminal-header { display: flex; }
+  .terminal-panel.open .terminal-body { display: block; }
+
+  .terminal-collapsed-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 12px;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .terminal-panel.open .terminal-collapsed-bar { display: none; }
+
+  .terminal-collapsed-icon {
+    font-size: 16px;
+    color: var(--text-muted);
+    transition: color 0.12s;
+  }
+  .terminal-collapsed-bar:hover .terminal-collapsed-icon { color: var(--accent-blue); }
+
+  .terminal-collapsed-label {
+    writing-mode: vertical-rl;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .terminal-collapsed-bar:hover .terminal-collapsed-label { color: var(--text-secondary); }
+
+  .terminal-header {
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-secondary);
+    height: 44px;
+  }
+
+  .terminal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px;
+    transition: color 0.12s;
+  }
+  .terminal-close:hover { color: var(--text-primary); }
+
+  .terminal-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-left: auto;
+  }
+
+  .terminal-body {
+    flex: 1;
+    padding: 12px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    overflow-y: auto;
+  }
+
+  .term-prompt { color: var(--accent-green); }
+  .term-output { color: var(--text-secondary); }
+  .term-error { color: var(--accent-red); }
+
+  /* ── Right Changes column ── */
+  .changes-col {
+    width: 360px;
+    min-width: 360px;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.2s ease, min-width 0.2s ease;
+  }
+
+  .changes-col.closed {
+    width: 40px;
+    min-width: 40px;
+    overflow: hidden;
+  }
+
+  .changes-col.closed .changes-file-list,
+  .changes-col.closed .changes-diff-preview,
+  .changes-col.closed .col-header {
+    display: none;
+  }
+
+  .changes-collapsed-bar {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 12px;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .changes-col.closed .changes-collapsed-bar {
+    display: flex;
+  }
+
+  .changes-collapsed-icon {
+    font-size: 16px;
+    color: var(--text-muted);
+    transition: color 0.12s;
+  }
+
+  .changes-collapsed-bar:hover .changes-collapsed-icon {
+    color: var(--accent-blue);
+  }
+
+  .changes-collapsed-label {
+    writing-mode: vertical-rl;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .changes-collapsed-bar:hover .changes-collapsed-label {
+    color: var(--text-secondary);
+  }
+
+  .col-header {
+    height: 44px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-secondary);
+  }
+
+  .col-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .col-close {
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 13px;
+    transition: color 0.12s;
+  }
+  .col-close:hover { color: var(--text-primary); }
+
+  .changes-file-list {
+    flex: 0 0 auto;
+    max-height: 33%;
+    overflow-y: auto;
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .change-file {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    transition: background 0.12s;
+  }
+  .change-file:hover { background: var(--bg-hover); }
+  .change-file.active { background: var(--bg-selected); }
+
+  .change-badge {
+    font-size: 10px;
+    font-weight: 700;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .change-badge.modified { color: var(--accent-yellow); }
+  .change-badge.added { color: var(--accent-green); }
+  .change-badge.deleted { color: var(--accent-red); }
+
+  .change-filename {
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .change-path {
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+
+  .changes-diff-preview {
+    flex: 1;
+    overflow-y: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .diff-preview-header {
+    padding: 6px 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+
+  .udiff-line {
+    padding: 0 12px;
+    min-height: 20px;
+    display: flex;
+    align-items: center;
+    white-space: pre;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .udiff-line-num {
+    width: 28px;
+    color: var(--text-muted);
+    font-size: 10px;
+    text-align: right;
+    padding-right: 8px;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  .udiff-line-content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .udiff-line.ctx { color: var(--text-secondary); }
+  .udiff-line.add { background: var(--diff-add-bg); color: var(--diff-add-text); }
+  .udiff-line.del { background: var(--diff-del-bg); color: var(--diff-del-text); }
+  .udiff-line.hunk { color: var(--accent-blue); font-size: 10px; padding: 4px 12px; }
+
+  .changes-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  /* ═══ Modals ═══ */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    width: 400px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .modal-branch {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--accent-blue);
+    background: var(--bg-tertiary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+
+  .modal-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .modal-desc li {
+    margin-bottom: 4px;
+    list-style: none;
+    padding-left: 16px;
+    position: relative;
+  }
+  .modal-desc li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--text-muted);
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .modal-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.12s;
+  }
+
+  .modal-btn-cancel {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+  }
+  .modal-btn-cancel:hover { background: var(--bg-hover); }
+
+  .modal-btn-delete {
+    background: var(--accent-red);
+    color: #fff;
+    border-color: var(--accent-red);
+  }
+  .modal-btn-delete:hover { background: #e85a5a; }
+
+  .modal-btn-create {
+    background: var(--accent-blue);
+    color: #fff;
+    border-color: var(--accent-blue);
+  }
+  .modal-btn-create:hover { background: #4d94fa; }
+
+  .modal-btn-save {
+    background: var(--accent-blue);
+    color: #fff;
+    border-color: var(--accent-blue);
+  }
+  .modal-btn-save:hover { background: #4d94fa; }
+
+  .modal-info-row {
+    margin-bottom: 12px;
+  }
+
+  .modal-info-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .modal-info-value {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  .modal-info-value.mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .modal-field {
+    margin-bottom: 16px;
+  }
+
+  .modal-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+
+  .modal-input {
+    width: 100%;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .modal-input:focus { border-color: var(--accent-blue); }
+  .modal-input::placeholder { color: var(--text-muted); }
+
+  .modal-select {
+    width: 100%;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%235a5a72' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  .modal-select:focus { border-color: var(--accent-blue); }
+
+  .modal-textarea {
+    width: 100%;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text-primary);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    outline: none;
+    resize: vertical;
+    min-height: 60px;
+    transition: border-color 0.15s;
+  }
+  .modal-textarea:focus { border-color: var(--accent-blue); }
+  .modal-textarea::placeholder { color: var(--text-muted); }
+
+  .hidden { display: none !important; }
+
+  .fade-in {
+    animation: fadeIn 0.15s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ── Guide overlay ── */
+  .guide {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 20px;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  .guide-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .guide-key {
+    background: var(--bg-hover);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-primary);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ══ LEFT SIDEBAR ══ -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Worktrees</span>
+      <button class="btn-new" onclick="openNewModal()">+ New</button>
+    </div>
+    <div class="sidebar-content">
+      <div class="wt-item selected" onclick="selectWorktree(this, 'feature/login')">
+        <div class="wt-item-header">
+          <span class="wt-info-btn" onclick="event.stopPropagation(); openInfoModal('feature/login')" title="情報">ℹ️</span>
+          <span class="wt-branch">feature/login</span>
+          <span class="wt-status running">🟢 実行中</span>
+        </div>
+        <div class="wt-base">base: main</div>
+        <div class="wt-title">「ログイン画面のバリデーション実装して」</div>
+        <div class="wt-memo">memo: API仕様はNotionのリンク参照</div>
+        <div class="wt-footer">
+          <span class="wt-delete" onclick="event.stopPropagation(); confirmDelete('feature/login')" title="削除">🗑</span>
+        </div>
+      </div>
+      <div class="wt-item" onclick="selectWorktree(this, 'fix/csv-export')">
+        <div class="wt-item-header">
+          <span class="wt-info-btn" onclick="event.stopPropagation(); openInfoModal('fix/csv-export')" title="情報">ℹ️</span>
+          <span class="wt-branch">fix/csv-export</span>
+          <span class="wt-status waiting">🟡 入力待ち</span>
+        </div>
+        <div class="wt-base">base: main</div>
+        <div class="wt-title">「CSVエクスポートの文字化け修正」</div>
+        <div class="wt-memo">memo:</div>
+        <div class="wt-footer">
+          <span class="wt-delete" onclick="event.stopPropagation(); confirmDelete('fix/csv-export')" title="削除">🗑</span>
+        </div>
+      </div>
+      <div class="wt-item" onclick="selectWorktree(this, 'refactor/api-v2')">
+        <div class="wt-item-header">
+          <span class="wt-info-btn" onclick="event.stopPropagation(); openInfoModal('refactor/api-v2')" title="情報">ℹ️</span>
+          <span class="wt-branch">refactor/api-v2</span>
+          <span class="wt-status stopped">⚫ 停止</span>
+        </div>
+        <div class="wt-base">base: develop</div>
+        <div class="wt-title">「REST APIをGraphQLに移行」</div>
+        <div class="wt-memo">memo: 明日PRレビュー待ち</div>
+        <div class="wt-footer">
+          <span class="wt-delete" onclick="event.stopPropagation(); confirmDelete('refactor/api-v2')" title="削除">🗑</span>
+        </div>
+      </div>
+      <div class="wt-item" onclick="selectWorktree(this, 'feature/notification')">
+        <div class="wt-item-header">
+          <span class="wt-info-btn" onclick="event.stopPropagation(); openInfoModal('feature/notification')" title="情報">ℹ️</span>
+          <span class="wt-branch">feature/notification</span>
+          <span class="wt-status running">🟢 実行中</span>
+        </div>
+        <div class="wt-base">base: develop</div>
+        <div class="wt-title">「Slack通知機能の追加」</div>
+        <div class="wt-memo">memo: sidekiqのジョブ設計を確認</div>
+        <div class="wt-footer">
+          <span class="wt-delete" onclick="event.stopPropagation(); confirmDelete('feature/notification')" title="削除">🗑</span>
+        </div>
+      </div>
+    </div>
+    <div class="slot-indicator">4/6 slots</div>
+  </div>
+
+  <!-- ══ MAIN CONTENT ══ -->
+  <div class="main">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-btn active" id="btn-changes" title="Changes" onclick="toggleChanges()">📂</div>
+      <div class="toolbar-btn" id="btn-terminal" title="Terminal" onclick="toggleTerminal()">⌨</div>
+      <span class="toolbar-branch">feature/login</span>
+      <span class="toolbar-spacer"></span>
+    </div>
+
+    <!-- Terminal (xterm.js) area — Claude CLI runs here -->
+    <div class="terminal-area" id="terminal-area" tabindex="0">
+      <!-- Claude CLI output rendered by xterm.js (mock) -->
+      <div style="margin-bottom: 16px;">
+        <span style="color: #888;">╭──────────────────────────────────────╮</span><br>
+        <span style="color: #888;">│</span> <span style="color: #60a5fa; font-weight: 600;">Claude Code</span> <span style="color: #888;">v1.2.0</span> <span style="color: #888;">│</span><br>
+        <span style="color: #888;">│</span> <span style="color: #666;">~/worktrees/feature-login</span> <span style="color: #888;">│</span><br>
+        <span style="color: #888;">╰──────────────────────────────────────╯</span>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <span class="cli-prompt">❯ </span><span class="cli-user-input">ログイン画面のバリデーション実装して</span>
+      </div>
+
+      <div class="cli-response">
+        ログイン画面のバリデーションを実装します。まず現在のコードを確認します。
+      </div>
+
+      <div class="cli-tool">
+        <span class="cli-tool-icon">✓</span> Read <span style="color: #888;">src/auth/login.ts</span>
+      </div>
+
+      <div class="cli-response">
+        現在のログインフォームにはバリデーションがありません。以下の実装を行います：
+        <br><br>
+        • メールアドレスの形式チェック<br>
+        • パスワードの最低文字数チェック（8文字以上）<br>
+        • 空欄チェック<br>
+        • エラーメッセージの表示
+      </div>
+
+      <!-- Permission prompt (Claude CLI's own UI) -->
+      <div class="cli-permission">
+        <div class="cli-permission-title">⚠ Edit src/auth/login.ts</div>
+        <div class="cli-permission-detail">
+          42 lines added, 3 lines removed
+        </div>
+        <div class="cli-permission-options">
+          [Y]es / [N]o / [A]lways allow edits
+        </div>
+      </div>
+
+      <div style="margin-top: 4px;">
+        <span class="cli-prompt">❯ </span><span style="color: #4ade80;">y</span>
+      </div>
+
+      <div class="cli-tool" style="margin-top: 8px;">
+        <span class="cli-tool-icon">✓</span> Edit <span style="color: #888;">src/auth/login.ts</span> <span style="color: #4ade80;">+42</span> <span style="color: #f87171;">-3</span>
+      </div>
+
+      <div class="cli-tool">
+        <span class="cli-tool-icon">✓</span> Create <span style="color: #888;">src/auth/validator.ts</span>
+      </div>
+
+      <div class="cli-response">
+        バリデーションを実装しました。テストも追加しますか？
+      </div>
+
+      <div style="margin-top: 12px;">
+        <span class="cli-prompt">❯ </span><span class="cli-cursor"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT CHANGES COLUMN ══ -->
+  <div class="changes-col" id="changes-col">
+    <div class="changes-collapsed-bar" onclick="toggleChanges()">
+      <span class="changes-collapsed-icon">📂</span>
+      <span class="changes-collapsed-label">Changes</span>
+    </div>
+    <div class="col-header">
+      <span class="col-close" onclick="toggleChanges()">✕</span>
+      <span class="col-title">Changes</span>
+    </div>
+    <div class="changes-file-list">
+      <div class="change-file" onclick="previewDiff(this, 'login.ts')">
+        <span class="change-badge modified">M</span>
+        <div>
+          <div class="change-filename">login.ts</div>
+          <div class="change-path">src/auth/</div>
+        </div>
+      </div>
+      <div class="change-file" onclick="previewDiff(this, 'validator.ts')">
+        <span class="change-badge added">A</span>
+        <div>
+          <div class="change-filename">validator.ts</div>
+          <div class="change-path">src/auth/</div>
+        </div>
+      </div>
+      <div class="change-file" onclick="previewDiff(this, 'login.test.ts')">
+        <span class="change-badge added">A</span>
+        <div>
+          <div class="change-filename">login.test.ts</div>
+          <div class="change-path">src/auth/__tests__/</div>
+        </div>
+      </div>
+      <div class="change-file" onclick="previewDiff(this, 'routes.ts')">
+        <span class="change-badge modified">M</span>
+        <div>
+          <div class="change-filename">routes.ts</div>
+          <div class="change-path">config/</div>
+        </div>
+      </div>
+    </div>
+    <div class="changes-diff-preview" id="changes-diff-preview">
+      <div class="changes-empty">ファイルを選択してdiffを表示</div>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT TERMINAL PANEL ══ -->
+  <div class="terminal-panel" id="terminal-panel">
+    <div class="terminal-collapsed-bar" onclick="toggleTerminal()">
+      <span class="terminal-collapsed-icon">⌨</span>
+      <span class="terminal-collapsed-label">Terminal</span>
+    </div>
+    <div class="terminal-header">
+      <button class="terminal-close" onclick="toggleTerminal()">✕</button>
+      <span class="terminal-title">Terminal</span>
+    </div>
+    <div class="terminal-body">
+      <div><span class="term-prompt">~/worktrees/feature-login $</span> bundle exec rspec spec/auth/</div>
+      <div class="term-output">Running 12 examples...</div>
+      <div class="term-output"></div>
+      <div class="term-output">..F.....F...</div>
+      <div class="term-output"></div>
+      <div class="term-output">Failures:</div>
+      <div class="term-output"></div>
+      <div class="term-error">  1) LoginValidator rejects invalid email format</div>
+      <div class="term-error">     expected: false</div>
+      <div class="term-error">     got: true</div>
+      <div class="term-output"></div>
+      <div class="term-output">12 examples, 1 failure</div>
+      <div class="term-output"></div>
+      <div><span class="term-prompt">~/worktrees/feature-login $</span> <span style="opacity:0.5">▊</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <div class="modal-title">ワークツリーを削除</div>
+    <div class="modal-branch" id="delete-branch-name">feature/login</div>
+    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; display: flex; align-items: center; gap: 6px;">
+      <span>base:</span>
+      <span style="font-family: 'JetBrains Mono', monospace; color: var(--text-secondary);" id="delete-base-branch">main</span>
+    </div>
+    <div class="modal-desc">
+      以下の処理が実行されます：
+      <ul>
+        <li>git worktree remove</li>
+        <li>スロットの解放</li>
+      </ul>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">キャンセル</button>
+      <button class="modal-btn modal-btn-delete" onclick="executeDelete()">削除する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Session info modal -->
+<div class="modal-overlay" id="info-modal">
+  <div class="modal" style="width: 440px;">
+    <div class="modal-title">セッション情報</div>
+    <div class="modal-info-row">
+      <div class="modal-info-label">ブランチ</div>
+      <div class="modal-info-value mono" id="info-branch">feature/login</div>
+    </div>
+    <div class="modal-info-row">
+      <div class="modal-info-label">Base</div>
+      <div class="modal-info-value mono" id="info-base">main</div>
+    </div>
+    <div class="modal-info-row">
+      <div class="modal-info-label">ステータス</div>
+      <div class="modal-info-value" id="info-status">🟢 実行中</div>
+    </div>
+    <div class="modal-info-row">
+      <div class="modal-info-label">タスク</div>
+      <div class="modal-info-value" id="info-title">「ログイン画面のバリデーション実装して」</div>
+    </div>
+    <div class="modal-info-row">
+      <div class="modal-info-label">worktree パス</div>
+      <div class="modal-info-value mono" id="info-path">~/worktrees/feature-login</div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">memo</label>
+      <input class="modal-input" id="info-memo" type="text" style="font-family: 'Noto Sans JP', sans-serif;" />
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="closeInfoModal()">キャンセル</button>
+      <button class="modal-btn modal-btn-save" onclick="saveInfoModal()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- New worktree modal -->
+<div class="modal-overlay" id="new-modal">
+  <div class="modal" style="width: 440px;">
+    <div class="modal-title">新しいワークツリー</div>
+    <div class="modal-field">
+      <label class="modal-label">ベースブランチ</label>
+      <select class="modal-select" id="new-base">
+        <option value="main">main</option>
+        <option value="develop">develop</option>
+        <option value="staging">staging</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">ブランチ名</label>
+      <input class="modal-input" id="new-branch" type="text" placeholder="feature/xxx" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">タスク</label>
+      <textarea class="modal-textarea" id="new-task" placeholder="Claude Codeへの最初の指示…" rows="3"></textarea>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">memo（任意）</label>
+      <input class="modal-input" id="new-memo" type="text" placeholder="メモを入力…" />
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="closeNewModal()">キャンセル</button>
+      <button class="modal-btn modal-btn-create" onclick="executeNew()">作成する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Guide -->
+<div class="guide">
+  <div class="guide-item">
+    <span class="guide-key">クリック</span> セッション選択
+  </div>
+  <div class="guide-item">
+    <span class="guide-key">ℹ️</span> 情報（memo編集・パス確認）
+  </div>
+  <div class="guide-item">
+    <span class="guide-key">📂</span> Changes トグル
+  </div>
+  <div class="guide-item">
+    <span class="guide-key">⌨</span> Terminal トグル
+  </div>
+  <div class="guide-item">
+    <span class="guide-key">ターミナルクリック</span> Claude CLIにフォーカス
+  </div>
+</div>
+
+<script>
+  function selectWorktree(el, branch) {
+    document.querySelectorAll('.wt-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    document.querySelector('.toolbar-branch').textContent = branch;
+  }
+
+  const sessionData = {
+    'feature/login': { base: 'main', status: '🟢 実行中', title: '「ログイン画面のバリデーション実装して。メールとパスワードの入力値チェックを追加する。空欄チェック、メール形式チェック、パスワード最低文字数チェック」', memo: 'API仕様はNotionのリンク参照', path: '~/worktrees/feature-login' },
+    'fix/csv-export': { base: 'main', status: '🟡 入力待ち', title: '「CSVエクスポートの文字化け修正。Shift-JIS対応が必要。ダウンロード時のContent-Typeヘッダーも確認して」', memo: '', path: '~/worktrees/fix-csv-export' },
+    'refactor/api-v2': { base: 'develop', status: '⚫ 停止', title: '「REST APIをGraphQLに移行。まずスキーマ定義から。既存のエンドポイントとの互換性も維持して」', memo: '明日PRレビュー待ち', path: '~/worktrees/refactor-api-v2' },
+    'feature/notification': { base: 'develop', status: '🟢 実行中', title: '「Slack通知機能の追加。タスク完了時とエラー発生時に通知を送る。Webhook URLは環境変数から取得」', memo: 'sidekiqのジョブ設計を確認', path: '~/worktrees/feature-notification' },
+  };
+
+  let infoBranch = null;
+
+  function openInfoModal(branch) {
+    infoBranch = branch;
+    const data = sessionData[branch];
+    document.getElementById('info-branch').textContent = branch;
+    document.getElementById('info-base').textContent = data.base;
+    document.getElementById('info-status').textContent = data.status;
+    document.getElementById('info-title').textContent = data.title;
+    document.getElementById('info-path').textContent = data.path;
+    document.getElementById('info-memo').value = data.memo;
+    document.getElementById('info-modal').classList.add('active');
+  }
+
+  function closeInfoModal() {
+    document.getElementById('info-modal').classList.remove('active');
+    infoBranch = null;
+  }
+
+  function saveInfoModal() {
+    if (infoBranch) {
+      sessionData[infoBranch].memo = document.getElementById('info-memo').value;
+    }
+    alert('memo を保存しました（モック）');
+    closeInfoModal();
+  }
+
+  function toggleChanges() {
+    const col = document.getElementById('changes-col');
+    const btn = document.getElementById('btn-changes');
+    col.classList.toggle('closed');
+    btn.classList.toggle('active');
+  }
+
+  function toggleTerminal() {
+    const panel = document.getElementById('terminal-panel');
+    const btn = document.getElementById('btn-terminal');
+    panel.classList.toggle('open');
+    btn.classList.toggle('active');
+  }
+
+  function previewDiff(el, filename) {
+    document.querySelectorAll('.change-file').forEach(f => f.classList.remove('active'));
+    el.classList.add('active');
+
+    const diffData = {
+      'login.ts': [
+        { type: 'hunk', content: '@@ -1,8 +1,16 @@' },
+        { type: 'ctx', num: '1', content: " import { FormEvent } from 'react';" },
+        { type: 'add', num: '2', content: "+import { validateLogin } from './validator';" },
+        { type: 'ctx', num: '3', content: ' ' },
+        { type: 'ctx', num: '4', content: ' export const LoginForm = () => {' },
+        { type: 'del', num: '5', content: '-  const handleSubmit = (e: FormEvent) => {' },
+        { type: 'del', num: '6', content: '-    e.preventDefault();' },
+        { type: 'del', num: '7', content: '-    // TODO: validate' },
+        { type: 'add', num: '5', content: '+  const [errors, setErrors] = useState([]);' },
+        { type: 'add', num: '6', content: '+' },
+        { type: 'add', num: '7', content: '+  const handleSubmit = (e: FormEvent) => {' },
+        { type: 'add', num: '8', content: '+    e.preventDefault();' },
+        { type: 'add', num: '9', content: '+    const result = validateLogin(email, password);' },
+        { type: 'add', num: '10', content: '+    if (!result.valid) {' },
+        { type: 'add', num: '11', content: '+      setErrors(result.errors);' },
+        { type: 'add', num: '12', content: '+      return;' },
+        { type: 'add', num: '13', content: '+    }' },
+        { type: 'ctx', num: '14', content: '     login(email, password);' },
+        { type: 'ctx', num: '15', content: '   };' },
+      ],
+      'validator.ts': [
+        { type: 'hunk', content: '@@ -0,0 +1,12 @@' },
+        { type: 'add', num: '1', content: '+interface ValidationResult {' },
+        { type: 'add', num: '2', content: '+  valid: boolean;' },
+        { type: 'add', num: '3', content: '+  errors: string[];' },
+        { type: 'add', num: '4', content: '+}' },
+        { type: 'add', num: '5', content: '+' },
+        { type: 'add', num: '6', content: '+export const validateLogin = (' },
+        { type: 'add', num: '7', content: '+  email: string,' },
+        { type: 'add', num: '8', content: '+  password: string' },
+        { type: 'add', num: '9', content: '+): ValidationResult => {' },
+        { type: 'add', num: '10', content: '+  const errors: string[] = [];' },
+        { type: 'add', num: '11', content: '+  if (!email) errors.push("メール必須");' },
+        { type: 'add', num: '12', content: '+  return { valid: !errors.length, errors };' },
+      ],
+      'login.test.ts': [
+        { type: 'hunk', content: '@@ -0,0 +1,8 @@' },
+        { type: 'add', num: '1', content: "+import { validateLogin } from '../validator';" },
+        { type: 'add', num: '2', content: '+' },
+        { type: 'add', num: '3', content: "+describe('validateLogin', () => {" },
+        { type: 'add', num: '4', content: "+  it('rejects empty email', () => {" },
+        { type: 'add', num: '5', content: "+    const r = validateLogin('', 'pass');" },
+        { type: 'add', num: '6', content: '+    expect(r.valid).toBe(false);' },
+        { type: 'add', num: '7', content: '+  });' },
+        { type: 'add', num: '8', content: '+});' },
+      ],
+      'routes.ts': [
+        { type: 'hunk', content: '@@ -5,6 +5,8 @@' },
+        { type: 'ctx', num: '5', content: " import { homeRoute } from './home';" },
+        { type: 'ctx', num: '6', content: " import { apiRoutes } from './api';" },
+        { type: 'add', num: '7', content: "+import { authRoutes } from './auth';" },
+        { type: 'ctx', num: '8', content: ' ' },
+        { type: 'ctx', num: '9', content: ' export const routes = [' },
+        { type: 'ctx', num: '10', content: '   homeRoute,' },
+        { type: 'add', num: '11', content: '+  ...authRoutes,' },
+        { type: 'ctx', num: '12', content: '   ...apiRoutes,' },
+      ],
+    };
+
+    const lines = diffData[filename] || [];
+    const preview = document.getElementById('changes-diff-preview');
+
+    let html = '<div class="diff-preview-header">src/auth/' + filename + '</div>';
+    lines.forEach(l => {
+      if (l.type === 'hunk') {
+        html += '<div class="udiff-line hunk">' + l.content + '</div>';
+      } else {
+        html += '<div class="udiff-line ' + l.type + '">' +
+          '<span class="udiff-line-num">' + (l.num || '') + '</span>' +
+          '<span class="udiff-line-content">' + l.content + '</span>' +
+          '</div>';
+      }
+    });
+
+    preview.innerHTML = html;
+  }
+
+  let deletingBranch = null;
+
+  function confirmDelete(branch) {
+    deletingBranch = branch;
+    document.getElementById('delete-branch-name').textContent = branch;
+    const baseBranches = {
+      'feature/login': 'main',
+      'fix/csv-export': 'main',
+      'refactor/api-v2': 'develop',
+      'feature/notification': 'develop',
+    };
+    document.getElementById('delete-base-branch').textContent = baseBranches[branch] || 'main';
+    document.getElementById('delete-modal').classList.add('active');
+  }
+
+  function closeDeleteModal() {
+    document.getElementById('delete-modal').classList.remove('active');
+    deletingBranch = null;
+  }
+
+  function executeDelete() {
+    alert(deletingBranch + ' を削除しました（モック）');
+    closeDeleteModal();
+  }
+
+  function openNewModal() {
+    document.getElementById('new-modal').classList.add('active');
+    document.getElementById('new-branch').value = '';
+    document.getElementById('new-task').value = '';
+    document.getElementById('new-memo').value = '';
+    document.getElementById('new-base').selectedIndex = 0;
+  }
+
+  function closeNewModal() {
+    document.getElementById('new-modal').classList.remove('active');
+  }
+
+  function executeNew() {
+    const base = document.getElementById('new-base').value;
+    const branch = document.getElementById('new-branch').value || 'feature/untitled';
+    alert(base + ' から ' + branch + ' を作成（モック）');
+    closeNewModal();
+  }
+
+  // Click terminal to focus
+  document.getElementById('terminal-area').addEventListener('click', function() {
+    this.focus();
+  });
+</script>
+</body>
+</html>
