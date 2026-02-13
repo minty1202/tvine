@@ -1,0 +1,2488 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>tvine - UI Mockup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #1a1b23;
+    --bg-secondary: #22232e;
+    --bg-tertiary: #2a2b38;
+    --bg-hover: #32334a;
+    --bg-selected: #2d3555;
+    --border: #3a3b4a;
+    --text-primary: #e0e0e8;
+    --text-secondary: #8888a0;
+    --text-muted: #5a5a72;
+    --accent-green: #4ade80;
+    --accent-yellow: #facc15;
+    --accent-red: #f87171;
+    --accent-blue: #60a5fa;
+    --accent-purple: #a78bfa;
+    --diff-add-bg: #1a3a2a;
+    --diff-add-text: #6ee7a0;
+    --diff-del-bg: #3a1a1a;
+    --diff-del-text: #fca5a5;
+    --diff-add-line-bg: #234d32;
+    --diff-del-line-bg: #4d2323;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ── Left Sidebar ── */
+  .sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease;
+  }
+
+  .sidebar-header {
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    height: 44px;
+  }
+
+  .sidebar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .btn-new {
+    background: var(--accent-blue);
+    color: #fff;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: background 0.15s;
+  }
+  .btn-new:hover { background: #4d94fa; }
+
+  .sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  .slot-indicator {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* worktree items */
+  .wt-item {
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    transition: background 0.12s;
+    border: 1px solid transparent;
+  }
+  .wt-item:hover { background: var(--bg-hover); }
+  .wt-item.selected {
+    background: var(--bg-selected);
+    border-color: var(--accent-blue);
+  }
+
+  .wt-item-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+
+  .wt-branch {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .wt-info-btn {
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: color 0.12s;
+  }
+  .wt-info-btn:hover { color: var(--accent-blue); }
+
+  .wt-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .wt-status.running {
+    background: rgba(74, 222, 128, 0.15);
+    color: var(--accent-green);
+  }
+  .wt-status.waiting {
+    background: rgba(250, 204, 21, 0.15);
+    color: var(--accent-yellow);
+  }
+  .wt-status.stopped {
+    background: rgba(90, 90, 114, 0.2);
+    color: var(--text-muted);
+  }
+
+  .wt-title {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .wt-base {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .wt-memo {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .wt-detail-link {
+    font-size: 11px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.12s;
+  }
+  .wt-detail-link:hover {
+    color: var(--accent-blue);
+  }
+
+  .wt-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Selected mode (Changes) ── */
+  .sidebar-back {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-secondary);
+    transition: color 0.12s;
+    height: 44px;
+  }
+  .sidebar-back:hover { color: var(--text-primary); }
+
+  .selected-branch-info {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-base {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  .detail-memo-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .detail-memo {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+    flex: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    outline: none;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    transition: border-color 0.12s, background 0.12s;
+  }
+
+  .detail-memo.editing {
+    border-color: var(--accent-blue);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-style: normal;
+    white-space: normal;
+  }
+
+  .detail-memo-edit {
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.12s;
+  }
+  .detail-memo-edit:hover { opacity: 1; }
+
+  .selected-branch-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .selected-branch-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .changes-section {
+    padding: 8px;
+  }
+
+  .changes-header {
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .change-file {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    transition: background 0.12s;
+  }
+  .change-file:hover { background: var(--bg-hover); }
+  .change-file.active { background: var(--bg-selected); }
+
+  .change-badge {
+    font-size: 10px;
+    font-weight: 700;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .change-badge.modified { color: var(--accent-yellow); }
+  .change-badge.added { color: var(--accent-green); }
+  .change-badge.deleted { color: var(--accent-red); }
+
+  .change-filename {
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .change-path {
+    color: var(--text-muted);
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* File tree */
+  .tree-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.12s;
+  }
+  .tree-item:hover { background: var(--bg-hover); }
+  .tree-item.active { background: var(--bg-selected); }
+
+  .tree-arrow {
+    font-size: 9px;
+    color: var(--text-muted);
+    width: 12px;
+    text-align: center;
+    transition: transform 0.15s;
+  }
+  .tree-arrow.open { transform: rotate(90deg); }
+
+  .tree-icon {
+    font-size: 12px;
+    width: 16px;
+    text-align: center;
+  }
+
+  .tree-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-primary);
+  }
+
+  .tree-children {
+    overflow: hidden;
+  }
+  .tree-children.hidden { display: none; }
+
+  /* ── Main Content ── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    position: relative;
+  }
+
+  .main-tabs {
+    display: none;
+    align-items: center;
+    height: 44px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    gap: 4px;
+  }
+
+  .main-tabs.visible {
+    display: flex;
+  }
+
+  .main-tab {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.12s;
+    border: 1px solid transparent;
+  }
+  .main-tab:hover {
+    color: var(--text-secondary);
+    background: var(--bg-hover);
+  }
+  .main-tab.active {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    border-color: var(--border);
+  }
+
+  /* Chat view */
+  .chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+  }
+
+  .chat-message {
+    margin-bottom: 20px;
+    max-width: 800px;
+  }
+
+  .chat-message.user {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .chat-bubble-user {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 12px 12px 4px 12px;
+    font-size: 14px;
+    max-width: 600px;
+  }
+
+  .chat-bubble-assistant {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-primary);
+  }
+
+  .chat-tool-call {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent-purple);
+    margin: 8px 0;
+    border: 1px solid var(--border);
+  }
+
+  .chat-tool-icon {
+    color: var(--accent-green);
+  }
+
+  /* Diff view */
+  .diff-area {
+    flex: 1;
+    overflow: auto;
+    display: none;
+  }
+
+  .diff-header {
+    padding: 10px 20px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .diff-filename {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .diff-stats {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+  }
+
+  .diff-stat-add { color: var(--accent-green); }
+  .diff-stat-del { color: var(--accent-red); }
+
+  .diff-container {
+    display: flex;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .diff-side {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .diff-side:first-child {
+    border-right: 1px solid var(--border);
+  }
+
+  .diff-side-header {
+    padding: 6px 16px;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 38px;
+    z-index: 5;
+  }
+
+  .diff-line {
+    display: flex;
+    padding: 0 16px;
+    min-height: 24px;
+    align-items: center;
+  }
+
+  .diff-line-num {
+    width: 40px;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-align: right;
+    padding-right: 12px;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  .diff-line-content {
+    white-space: pre;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .diff-line.added {
+    background: var(--diff-add-bg);
+  }
+  .diff-line.added .diff-line-content { color: var(--diff-add-text); }
+
+  .diff-line.removed {
+    background: var(--diff-del-bg);
+  }
+  .diff-line.removed .diff-line-content { color: var(--diff-del-text); }
+
+  .diff-line.empty {
+    background: var(--bg-tertiary);
+  }
+
+  /* ── Input Bar ── */
+  .input-bar {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .input-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.12s;
+    flex-shrink: 0;
+  }
+  .input-icon:hover {
+    border-color: var(--accent-blue);
+    background: var(--bg-hover);
+  }
+  .input-icon.active {
+    border-color: var(--accent-blue);
+    background: var(--bg-selected);
+  }
+
+  .input-field {
+    flex: 1;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: var(--text-primary);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .input-field:focus { border-color: var(--accent-blue); }
+  .input-field::placeholder { color: var(--text-muted); }
+
+  .input-send {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    background: var(--accent-blue);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: background 0.12s;
+  }
+  .input-send:hover { background: #4d94fa; }
+
+  /* ── Terminal Panel ── */
+  .terminal-panel {
+    width: 40px;
+    min-width: 40px;
+    background: var(--bg-primary);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.2s ease, min-width 0.2s ease;
+    overflow: hidden;
+  }
+  .terminal-panel.open {
+    width: 360px;
+    min-width: 360px;
+  }
+
+  .terminal-panel .terminal-header,
+  .terminal-panel .terminal-body {
+    display: none;
+  }
+  .terminal-panel.open .terminal-header {
+    display: flex;
+  }
+  .terminal-panel.open .terminal-body {
+    display: block;
+  }
+
+  .terminal-collapsed-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 12px;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .terminal-panel.open .terminal-collapsed-bar {
+    display: none;
+  }
+
+  .terminal-collapsed-icon {
+    font-size: 16px;
+    color: var(--text-muted);
+    transition: color 0.12s;
+  }
+
+  .terminal-collapsed-bar:hover .terminal-collapsed-icon {
+    color: var(--accent-blue);
+  }
+
+  .terminal-collapsed-label {
+    writing-mode: vertical-rl;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .terminal-collapsed-bar:hover .terminal-collapsed-label {
+    color: var(--text-secondary);
+  }
+
+  .terminal-header {
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-secondary);
+    height: 44px;
+  }
+
+  .terminal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px;
+    transition: color 0.12s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .terminal-close:hover { color: var(--text-primary); }
+
+  .terminal-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  .terminal-body {
+    flex: 1;
+    padding: 12px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    overflow-y: auto;
+  }
+
+  .term-prompt {
+    color: var(--accent-green);
+  }
+
+  .term-output {
+    color: var(--text-secondary);
+  }
+
+  .term-error {
+    color: var(--accent-red);
+  }
+
+  /* ── Guide overlay ── */
+  .guide {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 20px;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  .guide-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .guide-key {
+    background: var(--bg-hover);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-primary);
+  }
+
+  /* ═══ Delete modal ═══ */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    width: 400px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .modal-branch {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--accent-blue);
+    background: var(--bg-tertiary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+
+  .modal-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .modal-desc li {
+    margin-bottom: 4px;
+    list-style: none;
+    padding-left: 16px;
+    position: relative;
+  }
+  .modal-desc li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--text-muted);
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .modal-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.12s;
+  }
+
+  .modal-btn-cancel {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+  }
+  .modal-btn-cancel:hover { background: var(--bg-hover); }
+
+  .modal-btn-delete {
+    background: var(--accent-red);
+    color: #fff;
+    border-color: var(--accent-red);
+  }
+  .modal-btn-delete:hover { background: #e85a5a; }
+
+  .modal-btn-create {
+    background: var(--accent-blue);
+    color: #fff;
+    border-color: var(--accent-blue);
+  }
+  .modal-btn-create:hover { background: #4d94fa; }
+
+  .modal-btn-save {
+    background: var(--accent-blue);
+    color: #fff;
+    border-color: var(--accent-blue);
+  }
+  .modal-btn-save:hover { background: #4d94fa; }
+
+  .modal-info-row {
+    margin-bottom: 12px;
+  }
+
+  .modal-info-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .modal-info-value {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  .modal-info-value.mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .modal-field {
+    margin-bottom: 16px;
+  }
+
+  .modal-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+
+  .modal-input {
+    width: 100%;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .modal-input:focus { border-color: var(--accent-blue); }
+  .modal-input::placeholder { color: var(--text-muted); }
+
+  .modal-select {
+    width: 100%;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%235a5a72' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  .modal-select:focus { border-color: var(--accent-blue); }
+
+  .modal-textarea {
+    width: 100%;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text-primary);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    outline: none;
+    resize: vertical;
+    min-height: 60px;
+    transition: border-color 0.15s;
+  }
+  .modal-textarea:focus { border-color: var(--accent-blue); }
+  .modal-textarea::placeholder { color: var(--text-muted); }
+
+  /* Delete icon in session card */
+  .wt-delete {
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: all 0.12s;
+  }
+  .wt-delete:hover { color: var(--accent-red); background: rgba(248,113,113,0.1); }
+
+  /* ═══ Right Changes column (normal mode) ═══ */
+  .changes-col {
+    width: 360px;
+    min-width: 360px;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.2s ease, min-width 0.2s ease;
+  }
+
+  .changes-col.closed {
+    width: 40px;
+    min-width: 40px;
+    overflow: hidden;
+  }
+
+  .changes-col.closed .changes-file-list,
+  .changes-col.closed .changes-diff-preview,
+  .changes-col.closed .col-header {
+    display: none;
+  }
+
+  .changes-collapsed-bar {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 12px;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .changes-col.closed .changes-collapsed-bar {
+    display: flex;
+  }
+
+  .changes-collapsed-icon {
+    font-size: 16px;
+    color: var(--text-muted);
+    transition: color 0.12s;
+  }
+
+  .changes-collapsed-bar:hover .changes-collapsed-icon {
+    color: var(--accent-blue);
+  }
+
+  .changes-collapsed-label {
+    writing-mode: vertical-rl;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .changes-collapsed-bar:hover .changes-collapsed-label {
+    color: var(--text-secondary);
+  }
+
+  .changes-col .col-header {
+    height: 44px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-secondary);
+  }
+
+  .changes-col .col-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .changes-file-list {
+    flex: 0 0 auto;
+    max-height: 33%;
+    overflow-y: auto;
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .changes-diff-preview {
+    flex: 1;
+    overflow-y: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .changes-diff-preview .diff-preview-header {
+    padding: 6px 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+
+  .udiff-line {
+    padding: 0 12px;
+    min-height: 20px;
+    display: flex;
+    align-items: center;
+    white-space: pre;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .udiff-line-num {
+    width: 28px;
+    color: var(--text-muted);
+    font-size: 10px;
+    text-align: right;
+    padding-right: 8px;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  .udiff-line-content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .udiff-line.ctx { color: var(--text-secondary); }
+  .udiff-line.add { background: var(--diff-add-bg); color: var(--diff-add-text); }
+  .udiff-line.del { background: var(--diff-del-bg); color: var(--diff-del-text); }
+  .udiff-line.hunk { color: var(--accent-blue); font-size: 10px; padding: 4px 12px; }
+
+  .changes-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .hidden { display: none !important; }
+
+  .fade-in {
+    animation: fadeIn 0.15s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ── Split layout ── */
+  .main.split .main-content-area {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .main-content-area {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .main.split .split-top {
+    flex: 1;
+    overflow: auto;
+    border-bottom: 2px solid var(--accent-blue);
+    min-height: 0;
+  }
+
+  .main.split .split-bottom {
+    flex: 1;
+    overflow: auto;
+    min-height: 0;
+  }
+
+  .split-top, .split-bottom {
+    display: none;
+  }
+
+  .main.split .split-top,
+  .main.split .split-bottom {
+    display: block;
+  }
+
+  /* ── Layout toggle ── */
+  .layout-toggle {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+  }
+
+  .layout-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.12s;
+    border: 1px solid transparent;
+  }
+  .layout-btn:hover {
+    color: var(--text-secondary);
+    background: var(--bg-hover);
+  }
+  .layout-btn.active {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    border-color: var(--border);
+  }
+
+  /* ── Drop zone ── */
+  .drop-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    display: none;
+    pointer-events: none;
+  }
+
+  .drop-overlay.active {
+    display: flex;
+    pointer-events: auto;
+  }
+
+  .drop-zone-full {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(96, 165, 250, 0.08);
+    border: 2px dashed var(--accent-blue);
+    border-radius: 12px;
+    margin: 8px;
+    transition: background 0.15s;
+  }
+
+  .drop-overlay.split-mode .drop-zone-full {
+    display: none;
+  }
+
+  .drop-zone-top, .drop-zone-bottom {
+    flex: 1;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--accent-blue);
+    border-radius: 12px;
+    margin: 8px;
+    transition: background 0.15s;
+  }
+
+  .drop-overlay.split-mode .drop-zone-top,
+  .drop-overlay.split-mode .drop-zone-bottom {
+    display: flex;
+  }
+
+  .drop-overlay.split-mode {
+    flex-direction: column;
+  }
+
+  .drop-zone-full.dragover,
+  .drop-zone-top.dragover,
+  .drop-zone-bottom.dragover {
+    background: rgba(96, 165, 250, 0.18);
+  }
+
+  .drop-label {
+    font-size: 14px;
+    color: var(--accent-blue);
+    font-weight: 600;
+    pointer-events: none;
+  }
+
+  .drop-sublabel {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ══ LEFT SIDEBAR ══ -->
+  <div class="sidebar">
+    <!-- List mode -->
+    <div id="sidebar-list">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Worktrees</span>
+        <button class="btn-new" onclick="openNewModal()">+ New</button>
+      </div>
+      <div class="sidebar-content">
+        <div class="wt-item selected" onclick="selectWorktree(this, 'feature/login')" ondblclick="openEditorMode('feature/login')">
+          <div class="wt-item-header">
+            <span class="wt-info-btn" onclick="event.stopPropagation(); openInfoModal('feature/login')" title="情報">ℹ️</span>
+            <span class="wt-branch">feature/login</span>
+            <span class="wt-status running">🟢 実行中</span>
+          </div>
+          <div class="wt-base">base: main</div>
+          <div class="wt-title">「ログイン画面のバリデーション実装して」</div>
+          <div class="wt-memo">memo: API仕様はNotionのリンク参照</div>
+          <div class="wt-footer">
+            <span class="wt-delete" onclick="event.stopPropagation(); confirmDelete('feature/login')" title="削除">🗑</span>
+            <span class="wt-detail-link" onclick="event.stopPropagation(); openEditorMode('feature/login')">📂 詳細 →</span>
+          </div>
+        </div>
+        <div class="wt-item" onclick="selectWorktree(this, 'fix/csv-export')" ondblclick="openEditorMode('fix/csv-export')">
+          <div class="wt-item-header">
+            <span class="wt-info-btn" onclick="event.stopPropagation(); openInfoModal('fix/csv-export')" title="情報">ℹ️</span>
+            <span class="wt-branch">fix/csv-export</span>
+            <span class="wt-status waiting">🟡 入力待ち</span>
+          </div>
+          <div class="wt-base">base: main</div>
+          <div class="wt-title">「CSVエクスポートの文字化け修正」</div>
+          <div class="wt-memo">memo:</div>
+          <div class="wt-footer">
+            <span class="wt-delete" onclick="event.stopPropagation(); confirmDelete('fix/csv-export')" title="削除">🗑</span>
+            <span class="wt-detail-link" onclick="event.stopPropagation(); openEditorMode('fix/csv-export')">📂 詳細 →</span>
+          </div>
+        </div>
+        <div class="wt-item" onclick="selectWorktree(this, 'refactor/api-v2')" ondblclick="openEditorMode('refactor/api-v2')">
+          <div class="wt-item-header">
+            <span class="wt-info-btn" onclick="event.stopPropagation(); openInfoModal('refactor/api-v2')" title="情報">ℹ️</span>
+            <span class="wt-branch">refactor/api-v2</span>
+            <span class="wt-status stopped">⚫ 停止</span>
+          </div>
+          <div class="wt-base">base: develop</div>
+          <div class="wt-title">「REST APIをGraphQLに移行」</div>
+          <div class="wt-memo">memo: 明日PRレビュー待ち</div>
+          <div class="wt-footer">
+            <span class="wt-delete" onclick="event.stopPropagation(); confirmDelete('refactor/api-v2')" title="削除">🗑</span>
+            <span class="wt-detail-link" onclick="event.stopPropagation(); openEditorMode('refactor/api-v2')">📂 詳細 →</span>
+          </div>
+        </div>
+        <div class="wt-item" onclick="selectWorktree(this, 'feature/notification')" ondblclick="openEditorMode('feature/notification')">
+          <div class="wt-item-header">
+            <span class="wt-info-btn" onclick="event.stopPropagation(); openInfoModal('feature/notification')" title="情報">ℹ️</span>
+            <span class="wt-branch">feature/notification</span>
+            <span class="wt-status running">🟢 実行中</span>
+          </div>
+          <div class="wt-base">base: develop</div>
+          <div class="wt-title">「Slack通知機能の追加」</div>
+          <div class="wt-memo">memo: sidekiqのジョブ設計を確認</div>
+          <div class="wt-footer">
+            <span class="wt-delete" onclick="event.stopPropagation(); confirmDelete('feature/notification')" title="削除">🗑</span>
+            <span class="wt-detail-link" onclick="event.stopPropagation(); openEditorMode('feature/notification')">📂 詳細 →</span>
+          </div>
+        </div>
+      </div>
+      <div class="slot-indicator">2/6 slots</div>
+    </div>
+
+    <!-- Selected mode (Changes) -->
+    <div id="sidebar-selected" class="hidden">
+      <div class="sidebar-back" onclick="backToList()">
+        ← 戻る
+      </div>
+      <div class="selected-branch-info">
+        <div class="selected-branch-header">
+          <span class="selected-branch-name" id="selected-branch-name">feature/login</span>
+          <span class="wt-status running">🟢 実行中</span>
+          <span class="wt-delete" style="opacity:1; margin-left: auto;" onclick="confirmDelete(document.getElementById('selected-branch-name').textContent)" title="削除">🗑</span>
+        </div>
+        <div class="detail-base" id="detail-base">base: main</div>
+        <div class="detail-memo-row">
+          <span class="detail-memo" id="detail-memo" contenteditable="false">memo: API仕様はNotionのリンク参照</span>
+          <span class="detail-memo-edit" onclick="toggleMemoEdit()" title="編集">✏️</span>
+        </div>
+      </div>
+      <div class="changes-section">
+        <div class="changes-header">Changes (4)</div>
+        <div class="change-file" onclick="showDiff('login.ts')">
+          <span class="change-badge modified">M</span>
+          <div>
+            <div class="change-filename">login.ts</div>
+            <div class="change-path">src/auth/</div>
+          </div>
+        </div>
+        <div class="change-file" onclick="showDiff('validator.ts')">
+          <span class="change-badge modified">M</span>
+          <div>
+            <div class="change-filename">validator.ts</div>
+            <div class="change-path">src/auth/</div>
+          </div>
+        </div>
+        <div class="change-file" onclick="showDiff('login.test.ts')">
+          <span class="change-badge added">A</span>
+          <div>
+            <div class="change-filename">login.test.ts</div>
+            <div class="change-path">src/auth/__tests__/</div>
+          </div>
+        </div>
+        <div class="change-file" onclick="showDiff('routes.ts')">
+          <span class="change-badge modified">M</span>
+          <div>
+            <div class="change-filename">routes.ts</div>
+            <div class="change-path">config/</div>
+          </div>
+        </div>
+      </div>
+      <div class="changes-section">
+        <div class="changes-header">Files</div>
+        <div class="tree-item folder" onclick="toggleFolder(this)">
+          <span class="tree-arrow">▶</span>
+          <span class="tree-icon">📁</span>
+          <span class="tree-name">src</span>
+        </div>
+        <div class="tree-children hidden">
+          <div class="tree-item folder" onclick="toggleFolder(this)" style="padding-left: 24px;">
+            <span class="tree-arrow">▶</span>
+            <span class="tree-icon">📁</span>
+            <span class="tree-name">auth</span>
+          </div>
+          <div class="tree-children hidden">
+            <div class="tree-item file" onclick="showFile('src/auth/login.ts')" style="padding-left: 44px;">
+              <span class="tree-icon">📄</span>
+              <span class="tree-name">login.ts</span>
+            </div>
+            <div class="tree-item file" onclick="showFile('src/auth/validator.ts')" style="padding-left: 44px;">
+              <span class="tree-icon">📄</span>
+              <span class="tree-name">validator.ts</span>
+            </div>
+            <div class="tree-item folder" onclick="toggleFolder(this)" style="padding-left: 44px;">
+              <span class="tree-arrow">▶</span>
+              <span class="tree-icon">📁</span>
+              <span class="tree-name">__tests__</span>
+            </div>
+            <div class="tree-children hidden">
+              <div class="tree-item file" onclick="showFile('src/auth/__tests__/login.test.ts')" style="padding-left: 64px;">
+                <span class="tree-icon">📄</span>
+                <span class="tree-name">login.test.ts</span>
+              </div>
+            </div>
+          </div>
+          <div class="tree-item folder" onclick="toggleFolder(this)" style="padding-left: 24px;">
+            <span class="tree-arrow">▶</span>
+            <span class="tree-icon">📁</span>
+            <span class="tree-name">components</span>
+          </div>
+          <div class="tree-children hidden">
+            <div class="tree-item file" onclick="showFile('src/components/Header.tsx')" style="padding-left: 44px;">
+              <span class="tree-icon">📄</span>
+              <span class="tree-name">Header.tsx</span>
+            </div>
+            <div class="tree-item file" onclick="showFile('src/components/Footer.tsx')" style="padding-left: 44px;">
+              <span class="tree-icon">📄</span>
+              <span class="tree-name">Footer.tsx</span>
+            </div>
+          </div>
+        </div>
+        <div class="tree-item folder" onclick="toggleFolder(this)">
+          <span class="tree-arrow">▶</span>
+          <span class="tree-icon">📁</span>
+          <span class="tree-name">config</span>
+        </div>
+        <div class="tree-children hidden">
+          <div class="tree-item file" onclick="showFile('config/routes.ts')" style="padding-left: 24px;">
+            <span class="tree-icon">📄</span>
+            <span class="tree-name">routes.ts</span>
+          </div>
+          <div class="tree-item file" onclick="showFile('config/database.yml')" style="padding-left: 24px;">
+            <span class="tree-icon">📄</span>
+            <span class="tree-name">database.yml</span>
+          </div>
+        </div>
+      </div>
+      <div class="slot-indicator">2/6 slots</div>
+    </div>
+  </div>
+
+  <!-- ══ MAIN CONTENT ══ -->
+  <div class="main" id="main-area">
+    <!-- Tab switcher (visible when worktree selected) -->
+    <div class="main-tabs" id="main-tabs">
+      <div class="main-tab active" id="tab-chat" onclick="showChat()">💬 Chat</div>
+      <div class="main-tab" id="tab-diff" onclick="showDiffView()">Diff</div>
+      <div class="main-tab" id="tab-editor" onclick="showEditorView()">File</div>
+      <div class="layout-toggle" id="layout-toggle" style="display:none;">
+        <div class="layout-btn active" id="layout-full" onclick="setLayout('full')" title="全画面">⬜</div>
+        <div class="layout-btn" id="layout-split" onclick="setLayout('split')" title="上下分割">⬒</div>
+      </div>
+    </div>
+
+    <!-- Drop overlay -->
+    <div class="drop-overlay" id="drop-overlay">
+      <div class="drop-zone-full" id="drop-zone-full">
+        <div style="text-align:center">
+          <div class="drop-label">ここにドロップ — 全画面表示</div>
+        </div>
+      </div>
+      <div class="drop-zone-top" id="drop-zone-top">
+        <div style="text-align:center">
+          <div class="drop-label">上半分に表示</div>
+          <div class="drop-sublabel">下にチャットが表示されます</div>
+        </div>
+      </div>
+      <div class="drop-zone-bottom" id="drop-zone-bottom">
+        <div style="text-align:center">
+          <div class="drop-label">全画面表示</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-content-area" id="main-content">
+      <!-- Normal views (full mode) -->
+      <div id="full-view" style="flex:1; overflow:auto; display:flex; flex-direction:column;">
+        <!-- Chat View -->
+        <div class="chat-area" id="chat-view">
+      <div class="chat-message user">
+        <div class="chat-bubble-user">ログイン画面のバリデーション実装して</div>
+      </div>
+      <div class="chat-message">
+        <div class="chat-bubble-assistant">
+          ログイン画面のバリデーションを実装します。まず現在のコードを確認します。
+        </div>
+      </div>
+      <div class="chat-message">
+        <div class="chat-tool-call">
+          <span class="chat-tool-icon">✓</span>
+          Read src/auth/login.ts
+        </div>
+      </div>
+      <div class="chat-message">
+        <div class="chat-bubble-assistant">
+          現在のログインフォームにはバリデーションがありません。以下の実装を行います：<br><br>
+          ・メールアドレスの形式チェック<br>
+          ・パスワードの最低文字数チェック（8文字以上）<br>
+          ・空欄チェック<br>
+          ・エラーメッセージの表示
+        </div>
+      </div>
+      <div class="chat-message">
+        <div class="chat-tool-call">
+          <span class="chat-tool-icon">✓</span>
+          Edit src/auth/login.ts (+42 -3)
+        </div>
+      </div>
+      <div class="chat-message">
+        <div class="chat-tool-call">
+          <span class="chat-tool-icon">✓</span>
+          Create src/auth/validator.ts
+        </div>
+      </div>
+      <div class="chat-message">
+        <div class="chat-bubble-assistant">
+          バリデーションを実装しました。テストも追加しますか？
+        </div>
+      </div>
+    </div>
+
+    <!-- Diff View -->
+    <div class="diff-area" id="diff-view">
+      <div class="diff-header">
+        <span class="diff-filename" id="diff-filename">src/auth/login.ts</span>
+        <div class="diff-stats">
+          <span class="diff-stat-add">+42</span>
+          <span class="diff-stat-del">-3</span>
+        </div>
+      </div>
+      <div class="diff-container">
+        <!-- Left: Before -->
+        <div class="diff-side">
+          <div class="diff-side-header">変更前</div>
+          <div class="diff-line">
+            <span class="diff-line-num">1</span>
+            <span class="diff-line-content">import { FormEvent } from 'react';</span>
+          </div>
+          <div class="diff-line">
+            <span class="diff-line-num">2</span>
+            <span class="diff-line-content"></span>
+          </div>
+          <div class="diff-line">
+            <span class="diff-line-num">3</span>
+            <span class="diff-line-content">export const LoginForm = () => {</span>
+          </div>
+          <div class="diff-line removed">
+            <span class="diff-line-num">4</span>
+            <span class="diff-line-content">  const handleSubmit = (e: FormEvent) => {</span>
+          </div>
+          <div class="diff-line removed">
+            <span class="diff-line-num">5</span>
+            <span class="diff-line-content">    e.preventDefault();</span>
+          </div>
+          <div class="diff-line removed">
+            <span class="diff-line-num">6</span>
+            <span class="diff-line-content">    // TODO: validate</span>
+          </div>
+          <div class="diff-line">
+            <span class="diff-line-num">7</span>
+            <span class="diff-line-content">    login(email, password);</span>
+          </div>
+          <div class="diff-line">
+            <span class="diff-line-num">8</span>
+            <span class="diff-line-content">  };</span>
+          </div>
+          <div class="diff-line empty"><span class="diff-line-num"></span><span class="diff-line-content"></span></div>
+          <div class="diff-line empty"><span class="diff-line-num"></span><span class="diff-line-content"></span></div>
+          <div class="diff-line empty"><span class="diff-line-num"></span><span class="diff-line-content"></span></div>
+          <div class="diff-line empty"><span class="diff-line-num"></span><span class="diff-line-content"></span></div>
+          <div class="diff-line empty"><span class="diff-line-num"></span><span class="diff-line-content"></span></div>
+          <div class="diff-line empty"><span class="diff-line-num"></span><span class="diff-line-content"></span></div>
+          <div class="diff-line">
+            <span class="diff-line-num">9</span>
+            <span class="diff-line-content">  return (</span>
+          </div>
+          <div class="diff-line">
+            <span class="diff-line-num">10</span>
+            <span class="diff-line-content">    &lt;form onSubmit={handleSubmit}&gt;</span>
+          </div>
+        </div>
+        <!-- Right: After -->
+        <div class="diff-side">
+          <div class="diff-side-header">変更後</div>
+          <div class="diff-line">
+            <span class="diff-line-num">1</span>
+            <span class="diff-line-content">import { FormEvent } from 'react';</span>
+          </div>
+          <div class="diff-line added">
+            <span class="diff-line-num">2</span>
+            <span class="diff-line-content">import { validateLogin } from './validator';</span>
+          </div>
+          <div class="diff-line">
+            <span class="diff-line-num">3</span>
+            <span class="diff-line-content">export const LoginForm = () => {</span>
+          </div>
+          <div class="diff-line added">
+            <span class="diff-line-num">4</span>
+            <span class="diff-line-content">  const [errors, setErrors] = useState&lt;string[]&gt;([]);</span>
+          </div>
+          <div class="diff-line added">
+            <span class="diff-line-num">5</span>
+            <span class="diff-line-content"></span>
+          </div>
+          <div class="diff-line added">
+            <span class="diff-line-num">6</span>
+            <span class="diff-line-content">  const handleSubmit = (e: FormEvent) => {</span>
+          </div>
+          <div class="diff-line added">
+            <span class="diff-line-num">7</span>
+            <span class="diff-line-content">    e.preventDefault();</span>
+          </div>
+          <div class="diff-line added">
+            <span class="diff-line-num">8</span>
+            <span class="diff-line-content">    const result = validateLogin(email, password);</span>
+          </div>
+          <div class="diff-line added">
+            <span class="diff-line-num">9</span>
+            <span class="diff-line-content">    if (!result.valid) {</span>
+          </div>
+          <div class="diff-line added">
+            <span class="diff-line-num">10</span>
+            <span class="diff-line-content">      setErrors(result.errors);</span>
+          </div>
+          <div class="diff-line added">
+            <span class="diff-line-num">11</span>
+            <span class="diff-line-content">      return;</span>
+          </div>
+          <div class="diff-line added">
+            <span class="diff-line-num">12</span>
+            <span class="diff-line-content">    }</span>
+          </div>
+          <div class="diff-line">
+            <span class="diff-line-num">13</span>
+            <span class="diff-line-content">    login(email, password);</span>
+          </div>
+          <div class="diff-line">
+            <span class="diff-line-num">14</span>
+            <span class="diff-line-content">  };</span>
+          </div>
+          <div class="diff-line">
+            <span class="diff-line-num">15</span>
+            <span class="diff-line-content">  return (</span>
+          </div>
+          <div class="diff-line">
+            <span class="diff-line-num">16</span>
+            <span class="diff-line-content">    &lt;form onSubmit={handleSubmit}&gt;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Editor View -->
+    <div class="diff-area" id="editor-view">
+      <div class="diff-header">
+        <span class="diff-filename" id="editor-filename">src/auth/login.ts</span>
+      </div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6;">
+        <div class="diff-line">
+          <span class="diff-line-num">1</span>
+          <span class="diff-line-content">import { FormEvent } from 'react';</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">2</span>
+          <span class="diff-line-content">import { validateLogin } from './validator';</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">3</span>
+          <span class="diff-line-content"></span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">4</span>
+          <span class="diff-line-content">export const LoginForm = () => {</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">5</span>
+          <span class="diff-line-content">  const [errors, setErrors] = useState&lt;string[]&gt;([]);</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">6</span>
+          <span class="diff-line-content"></span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">7</span>
+          <span class="diff-line-content">  const handleSubmit = (e: FormEvent) => {</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">8</span>
+          <span class="diff-line-content">    e.preventDefault();</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">9</span>
+          <span class="diff-line-content">    const result = validateLogin(email, password);</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">10</span>
+          <span class="diff-line-content">    if (!result.valid) {</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">11</span>
+          <span class="diff-line-content">      setErrors(result.errors);</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">12</span>
+          <span class="diff-line-content">      return;</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">13</span>
+          <span class="diff-line-content">    }</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">14</span>
+          <span class="diff-line-content">    login(email, password);</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">15</span>
+          <span class="diff-line-content">  };</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">16</span>
+          <span class="diff-line-content"></span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">17</span>
+          <span class="diff-line-content">  return (</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">18</span>
+          <span class="diff-line-content">    &lt;form onSubmit={handleSubmit}&gt;</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">19</span>
+          <span class="diff-line-content">      {errors.length > 0 && (</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">20</span>
+          <span class="diff-line-content">        &lt;div className="errors"&gt;</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">21</span>
+          <span class="diff-line-content">          {errors.map(e =&gt; &lt;p key={e}&gt;{e}&lt;/p&gt;)}</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">22</span>
+          <span class="diff-line-content">        &lt;/div&gt;</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">23</span>
+          <span class="diff-line-content">      )}</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">24</span>
+          <span class="diff-line-content">      &lt;input type="email" /&gt;</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">25</span>
+          <span class="diff-line-content">      &lt;input type="password" /&gt;</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">26</span>
+          <span class="diff-line-content">      &lt;button type="submit"&gt;ログイン&lt;/button&gt;</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">27</span>
+          <span class="diff-line-content">    &lt;/form&gt;</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">28</span>
+          <span class="diff-line-content">  );</span>
+        </div>
+        <div class="diff-line">
+          <span class="diff-line-num">29</span>
+          <span class="diff-line-content">};</span>
+        </div>
+      </div>
+    </div>
+
+      </div><!-- /full-view -->
+
+      <!-- Split view (top: file/diff, bottom: chat) -->
+      <div id="split-view" style="display:none; flex:1; min-height:0; flex-direction:column;">
+        <div id="split-top" style="flex:1; overflow:auto; border-bottom: 2px solid var(--border); min-height:0; padding: 0;">
+        </div>
+        <div id="split-bottom" style="flex:1; overflow:auto; min-height:0; padding: 20px 24px;">
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+
+    <!-- Input Bar (always visible) -->
+    <div class="input-bar">
+      <div class="input-icon" id="btn-chat" title="チャットに戻る" onclick="showChat()" style="display:none;">💬</div>
+      <div class="input-icon active" id="btn-changes" title="Changes" onclick="toggleChanges()">📂</div>
+      <div class="input-icon" id="btn-terminal" title="ターミナル" onclick="toggleTerminal()">⌨</div>
+      <input class="input-field" type="text" placeholder="メッセージを入力…" />
+      <button class="input-send">▶</button>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT CHANGES COLUMN (normal mode) ══ -->
+  <div class="changes-col" id="changes-col">
+    <div class="changes-collapsed-bar" onclick="toggleChanges()">
+      <span class="changes-collapsed-icon">📂</span>
+      <span class="changes-collapsed-label">Changes</span>
+    </div>
+    <div class="col-header">
+      <span style="cursor:pointer; color:var(--text-muted); font-size:13px; transition:color 0.12s;" onclick="toggleChanges()" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-muted)'">✕</span>
+      <span class="col-title">Changes</span>
+    </div>
+    <div class="changes-file-list">
+      <div class="change-file" onclick="previewDiff('login.ts')">
+        <span class="change-badge modified">M</span>
+        <div>
+          <div class="change-filename">login.ts</div>
+          <div class="change-path">src/auth/</div>
+        </div>
+      </div>
+      <div class="change-file" onclick="previewDiff('validator.ts')">
+        <span class="change-badge modified">M</span>
+        <div>
+          <div class="change-filename">validator.ts</div>
+          <div class="change-path">src/auth/</div>
+        </div>
+      </div>
+      <div class="change-file" onclick="previewDiff('login.test.ts')">
+        <span class="change-badge added">A</span>
+        <div>
+          <div class="change-filename">login.test.ts</div>
+          <div class="change-path">src/auth/__tests__/</div>
+        </div>
+      </div>
+      <div class="change-file" onclick="previewDiff('routes.ts')">
+        <span class="change-badge modified">M</span>
+        <div>
+          <div class="change-filename">routes.ts</div>
+          <div class="change-path">config/</div>
+        </div>
+      </div>
+    </div>
+    <div class="changes-diff-preview" id="changes-diff-preview">
+      <div class="changes-empty">ファイルを選択してdiffを表示</div>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT TERMINAL PANEL ══ -->
+  <div class="terminal-panel" id="terminal-panel">
+    <div class="terminal-collapsed-bar" onclick="toggleTerminal()">
+      <span class="terminal-collapsed-icon">⌨</span>
+      <span class="terminal-collapsed-label">Terminal</span>
+    </div>
+    <div class="terminal-header">
+      <button class="terminal-close" onclick="toggleTerminal()">✕</button>
+      <span class="terminal-title">Terminal</span>
+    </div>
+    <div class="terminal-body">
+      <div><span class="term-prompt">~/worktrees/feature-login $</span> bundle exec rspec spec/auth/</div>
+      <div class="term-output">Running 12 examples...</div>
+      <div class="term-output"></div>
+      <div class="term-output">..F.....F...</div>
+      <div class="term-output"></div>
+      <div class="term-output">Failures:</div>
+      <div class="term-output"></div>
+      <div class="term-error">  1) LoginValidator rejects invalid email format</div>
+      <div class="term-error">     expected: false</div>
+      <div class="term-error">     got: true</div>
+      <div class="term-output"></div>
+      <div class="term-error">  2) LoginValidator rejects short passwords</div>
+      <div class="term-error">     expected: { valid: false }</div>
+      <div class="term-error">     got: { valid: true }</div>
+      <div class="term-output"></div>
+      <div class="term-output">12 examples, 2 failures</div>
+      <div class="term-output"></div>
+      <div><span class="term-prompt">~/worktrees/feature-login $</span> <span style="opacity:0.5">▊</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <div class="modal-title">ワークツリーを削除</div>
+    <div class="modal-branch" id="delete-branch-name">feature/login</div>
+    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; display: flex; align-items: center; gap: 6px;">
+      <span>base:</span>
+      <span style="font-family: 'JetBrains Mono', monospace; color: var(--text-secondary);" id="delete-base-branch">main</span>
+    </div>
+    <div class="modal-desc">
+      以下の処理が実行されます：
+      <ul>
+        <li>docker compose down（コンテナ停止・削除）</li>
+        <li>git worktree remove</li>
+        <li>スロットの解放</li>
+      </ul>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">キャンセル</button>
+      <button class="modal-btn modal-btn-delete" onclick="executeDelete()">削除する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Session info modal -->
+<div class="modal-overlay" id="info-modal">
+  <div class="modal" style="width: 440px;">
+    <div class="modal-title">セッション情報</div>
+
+    <div class="modal-info-row">
+      <div class="modal-info-label">ブランチ</div>
+      <div class="modal-info-value mono" id="info-branch">feature/login</div>
+    </div>
+
+    <div class="modal-info-row">
+      <div class="modal-info-label">Base</div>
+      <div class="modal-info-value mono" id="info-base">main</div>
+    </div>
+
+    <div class="modal-info-row">
+      <div class="modal-info-label">ステータス</div>
+      <div class="modal-info-value" id="info-status">🟢 実行中</div>
+    </div>
+
+    <div class="modal-info-row">
+      <div class="modal-info-label">タスク</div>
+      <div class="modal-info-value" id="info-title">「ログイン画面のバリデーション実装して」</div>
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label">memo</label>
+      <input class="modal-input" id="info-memo" type="text" style="font-family: 'Noto Sans JP', sans-serif;" />
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="closeInfoModal()">キャンセル</button>
+      <button class="modal-btn modal-btn-save" onclick="saveInfoModal()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- New worktree modal -->
+<div class="modal-overlay" id="new-modal">
+  <div class="modal" style="width: 440px;">
+    <div class="modal-title">新しいワークツリー</div>
+
+    <div class="modal-field">
+      <label class="modal-label">ベースブランチ</label>
+      <select class="modal-select" id="new-base">
+        <option value="main">main</option>
+        <option value="develop">develop</option>
+        <option value="staging">staging</option>
+      </select>
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label">ブランチ名</label>
+      <input class="modal-input" id="new-branch" type="text" placeholder="feature/xxx" />
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label">タスク</label>
+      <textarea class="modal-textarea" id="new-task" placeholder="Claude Codeへの最初の指示…" rows="3"></textarea>
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label">memo（任意）</label>
+      <input class="modal-input" id="new-memo" type="text" placeholder="メモを入力…" />
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="closeNewModal()">キャンセル</button>
+      <button class="modal-btn modal-btn-create" onclick="executeNew()">作成する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Guide -->
+<div class="guide">
+  <div class="guide-item">
+    <span class="guide-key">クリック</span> セッション選択
+  </div>
+  <div class="guide-item">
+    <span class="guide-key">ダブルクリック</span> 詳細モードへ
+  </div>
+  <div class="guide-item">
+    <span class="guide-key">ℹ️</span> 情報モーダル（memo編集）
+  </div>
+  <div class="guide-item">
+    <span class="guide-key">Chat / Diff / File</span> タブで切り替え（詳細モード）
+  </div>
+  <div class="guide-item">
+    <span class="guide-key">📂 ⌨</span> Changes / Terminal トグル
+  </div>
+</div>
+
+<script>
+  let currentView = 'chat';
+  let currentLayout = 'full'; // 'full' or 'split'
+  let droppedFile = null;
+
+  function selectWorktree(el, branch) {
+    document.querySelectorAll('.wt-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  const sessionData = {
+    'feature/login': { base: 'main', status: '🟢 実行中', title: '「ログイン画面のバリデーション実装して。メールとパスワードの入力値チェックを追加する。空欄チェック、メール形式チェック、パスワード最低文字数チェック」', memo: 'API仕様はNotionのリンク参照' },
+    'fix/csv-export': { base: 'main', status: '🟡 入力待ち', title: '「CSVエクスポートの文字化け修正。Shift-JIS対応が必要。ダウンロード時のContent-Typeヘッダーも確認して」', memo: '' },
+    'refactor/api-v2': { base: 'develop', status: '⚫ 停止', title: '「REST APIをGraphQLに移行。まずスキーマ定義から。既存のエンドポイントとの互換性も維持して」', memo: '明日PRレビュー待ち' },
+    'feature/notification': { base: 'develop', status: '🟢 実行中', title: '「Slack通知機能の追加。タスク完了時とエラー発生時に通知を送る。Webhook URLは環境変数から取得」', memo: 'sidekiqのジョブ設計を確認' },
+  };
+
+  let infoBranch = null;
+
+  function openInfoModal(branch) {
+    infoBranch = branch;
+    const data = sessionData[branch];
+    document.getElementById('info-branch').textContent = branch;
+    document.getElementById('info-base').textContent = data.base;
+    document.getElementById('info-status').textContent = data.status;
+    document.getElementById('info-title').textContent = data.title;
+    document.getElementById('info-memo').value = data.memo;
+    document.getElementById('info-modal').classList.add('active');
+  }
+
+  function closeInfoModal() {
+    document.getElementById('info-modal').classList.remove('active');
+    infoBranch = null;
+  }
+
+  function saveInfoModal() {
+    if (infoBranch) {
+      sessionData[infoBranch].memo = document.getElementById('info-memo').value;
+    }
+    alert('memo を保存しました（モック）');
+    closeInfoModal();
+  }
+
+  function openEditorMode(branch) {
+    document.getElementById('sidebar-list').classList.add('hidden');
+    document.getElementById('sidebar-selected').classList.remove('hidden');
+    document.getElementById('sidebar-selected').classList.add('fade-in');
+    document.getElementById('selected-branch-name').textContent = branch;
+    document.getElementById('main-tabs').classList.add('visible');
+    document.getElementById('changes-col').style.display = 'none';
+    document.getElementById('btn-changes').style.display = 'none';
+    document.getElementById('btn-chat').style.display = '';
+    // Populate base and memo
+    const baseBranches = {
+      'feature/login': 'main',
+      'fix/csv-export': 'main',
+      'refactor/api-v2': 'develop',
+      'feature/notification': 'develop',
+    };
+    const memos = {
+      'feature/login': 'memo: API仕様はNotionのリンク参照',
+      'fix/csv-export': 'memo:',
+      'refactor/api-v2': 'memo: 明日PRレビュー待ち',
+      'feature/notification': 'memo: sidekiqのジョブ設計を確認',
+    };
+    document.getElementById('detail-base').textContent = 'base: ' + (baseBranches[branch] || 'main');
+    const memoEl = document.getElementById('detail-memo');
+    memoEl.textContent = memos[branch] || 'memo:';
+    memoEl.contentEditable = 'false';
+    memoEl.classList.remove('editing');
+  }
+
+  function toggleMemoEdit() {
+    const memoEl = document.getElementById('detail-memo');
+    const isEditing = memoEl.classList.contains('editing');
+    if (isEditing) {
+      memoEl.contentEditable = 'false';
+      memoEl.classList.remove('editing');
+    } else {
+      memoEl.contentEditable = 'true';
+      memoEl.classList.add('editing');
+      memoEl.focus();
+    }
+  }
+
+  function backToList() {
+    document.getElementById('sidebar-selected').classList.add('hidden');
+    document.getElementById('sidebar-list').classList.remove('hidden');
+    document.getElementById('sidebar-list').classList.add('fade-in');
+    document.getElementById('main-tabs').classList.remove('visible');
+    document.getElementById('layout-toggle').style.display = 'none';
+    document.getElementById('changes-col').style.display = '';
+    document.getElementById('btn-changes').style.display = '';
+    document.getElementById('btn-chat').style.display = 'none';
+    currentLayout = 'full';
+    showChat();
+    document.querySelectorAll('.change-file').forEach(f => f.classList.remove('active'));
+  }
+
+  function previewDiff(filename) {
+    // Highlight selected file in changes column
+    document.querySelectorAll('#changes-col .change-file').forEach(f => f.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    const diffData = {
+      'login.ts': [
+        { type: 'hunk', content: '@@ -1,8 +1,16 @@' },
+        { type: 'ctx', num: '1', content: " import { FormEvent } from 'react';" },
+        { type: 'add', num: '2', content: "+import { validateLogin } from './validator';" },
+        { type: 'ctx', num: '3', content: ' ' },
+        { type: 'ctx', num: '4', content: ' export const LoginForm = () => {' },
+        { type: 'del', num: '5', content: '-  const handleSubmit = (e: FormEvent) => {' },
+        { type: 'del', num: '6', content: '-    e.preventDefault();' },
+        { type: 'del', num: '7', content: '-    // TODO: validate' },
+        { type: 'add', num: '5', content: '+  const [errors, setErrors] = useState([]);' },
+        { type: 'add', num: '6', content: '+' },
+        { type: 'add', num: '7', content: '+  const handleSubmit = (e: FormEvent) => {' },
+        { type: 'add', num: '8', content: '+    e.preventDefault();' },
+        { type: 'add', num: '9', content: '+    const result = validateLogin(email, password);' },
+        { type: 'add', num: '10', content: '+    if (!result.valid) {' },
+        { type: 'add', num: '11', content: '+      setErrors(result.errors);' },
+        { type: 'add', num: '12', content: '+      return;' },
+        { type: 'add', num: '13', content: '+    }' },
+        { type: 'ctx', num: '14', content: '     login(email, password);' },
+        { type: 'ctx', num: '15', content: '   };' },
+      ],
+      'validator.ts': [
+        { type: 'hunk', content: '@@ -0,0 +1,12 @@' },
+        { type: 'add', num: '1', content: '+interface ValidationResult {' },
+        { type: 'add', num: '2', content: '+  valid: boolean;' },
+        { type: 'add', num: '3', content: '+  errors: string[];' },
+        { type: 'add', num: '4', content: '+}' },
+        { type: 'add', num: '5', content: '+' },
+        { type: 'add', num: '6', content: '+export const validateLogin = (' },
+        { type: 'add', num: '7', content: '+  email: string,' },
+        { type: 'add', num: '8', content: '+  password: string' },
+        { type: 'add', num: '9', content: '+): ValidationResult => {' },
+        { type: 'add', num: '10', content: '+  const errors: string[] = [];' },
+        { type: 'add', num: '11', content: '+  if (!email) errors.push("メール必須");' },
+        { type: 'add', num: '12', content: '+  return { valid: !errors.length, errors };' },
+      ],
+      'login.test.ts': [
+        { type: 'hunk', content: '@@ -0,0 +1,8 @@' },
+        { type: 'add', num: '1', content: "+import { validateLogin } from '../validator';" },
+        { type: 'add', num: '2', content: '+' },
+        { type: 'add', num: '3', content: "+describe('validateLogin', () => {" },
+        { type: 'add', num: '4', content: "+  it('rejects empty email', () => {" },
+        { type: 'add', num: '5', content: "+    const r = validateLogin('', 'pass');" },
+        { type: 'add', num: '6', content: '+    expect(r.valid).toBe(false);' },
+        { type: 'add', num: '7', content: '+  });' },
+        { type: 'add', num: '8', content: '+});' },
+      ],
+      'routes.ts': [
+        { type: 'hunk', content: '@@ -5,6 +5,8 @@' },
+        { type: 'ctx', num: '5', content: " import { homeRoute } from './home';" },
+        { type: 'ctx', num: '6', content: " import { apiRoutes } from './api';" },
+        { type: 'add', num: '7', content: "+import { authRoutes } from './auth';" },
+        { type: 'ctx', num: '8', content: ' ' },
+        { type: 'ctx', num: '9', content: ' export const routes = [' },
+        { type: 'ctx', num: '10', content: '   homeRoute,' },
+        { type: 'add', num: '11', content: '+  ...authRoutes,' },
+        { type: 'ctx', num: '12', content: '   ...apiRoutes,' },
+      ],
+    };
+
+    const lines = diffData[filename] || [];
+    const preview = document.getElementById('changes-diff-preview');
+
+    let html = '<div class="diff-preview-header">src/auth/' + filename + '</div>';
+    lines.forEach(l => {
+      if (l.type === 'hunk') {
+        html += '<div class="udiff-line hunk">' + l.content + '</div>';
+      } else {
+        html += '<div class="udiff-line ' + l.type + '">' +
+          '<span class="udiff-line-num">' + (l.num || '') + '</span>' +
+          '<span class="udiff-line-content">' + l.content + '</span>' +
+          '</div>';
+      }
+    });
+
+    preview.innerHTML = html;
+  }
+
+  function setActiveTab(tabId) {
+    document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+  }
+
+  function hideAllViews() {
+    document.getElementById('chat-view').style.display = 'none';
+    document.getElementById('diff-view').style.display = 'none';
+    document.getElementById('editor-view').style.display = 'none';
+    document.getElementById('full-view').style.display = 'none';
+    document.getElementById('split-view').style.display = 'none';
+  }
+
+  function showFullView(viewId) {
+    hideAllViews();
+    document.getElementById('full-view').style.display = 'flex';
+    document.getElementById(viewId).style.display = 'block';
+    document.getElementById(viewId).classList.add('fade-in');
+  }
+
+  function showSplitView(topViewId) {
+    hideAllViews();
+    const splitView = document.getElementById('split-view');
+    splitView.style.display = 'flex';
+
+    const splitTop = document.getElementById('split-top');
+    const splitBottom = document.getElementById('split-bottom');
+
+    const topContent = document.getElementById(topViewId);
+    const filename = topViewId === 'diff-view'
+      ? document.getElementById('diff-filename').textContent
+      : document.getElementById('editor-filename').textContent;
+
+    // Clone content and remove original header
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = topContent.innerHTML;
+    const origHeader = tempDiv.querySelector('.diff-header');
+    if (origHeader) origHeader.remove();
+
+    splitTop.innerHTML =
+      '<div style="display:flex; align-items:center; height:36px; padding:0 12px; background:var(--bg-secondary); border-bottom:1px solid var(--border); gap:8px;">' +
+        '<span onclick="closeSplitTop()" style="cursor:pointer; color:var(--text-muted); font-size:14px; transition:color 0.12s;" onmouseover="this.style.color=\'var(--text-primary)\'" onmouseout="this.style.color=\'var(--text-muted)\'">✕</span>' +
+        '<span style="font-family:JetBrains Mono,monospace; font-size:12px; color:var(--text-primary);">' + filename + '</span>' +
+      '</div>' +
+      tempDiv.innerHTML;
+
+    const chatContent = document.getElementById('chat-view');
+    splitBottom.innerHTML = chatContent.innerHTML;
+  }
+
+  function closeSplitTop() {
+    currentLayout = 'full';
+    updateLayoutButtons();
+    showChat();
+  }
+
+  function showDiff(filename) {
+    document.querySelectorAll('.change-file').forEach(f => f.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.querySelectorAll('.tree-item.file').forEach(f => f.classList.remove('active'));
+
+    document.getElementById('diff-filename').textContent = 'src/auth/' + filename;
+    document.getElementById('editor-filename').textContent = 'src/auth/' + filename;
+    document.getElementById('layout-toggle').style.display = 'flex';
+
+    if (currentLayout === 'split') {
+      showSplitView('diff-view');
+    } else {
+      showFullView('diff-view');
+    }
+    setActiveTab('tab-diff');
+    currentView = 'diff';
+  }
+
+  function showDiffView() {
+    const activeFile = document.querySelector('.change-file.active');
+    if (activeFile) {
+      document.getElementById('layout-toggle').style.display = 'flex';
+      if (currentLayout === 'split') {
+        showSplitView('diff-view');
+      } else {
+        showFullView('diff-view');
+      }
+    }
+    setActiveTab('tab-diff');
+    currentView = 'diff';
+  }
+
+  function showEditorView() {
+    const activeFile = document.querySelector('.change-file.active, .tree-item.file.active');
+    if (activeFile) {
+      document.getElementById('layout-toggle').style.display = 'flex';
+      if (currentLayout === 'split') {
+        showSplitView('editor-view');
+      } else {
+        showFullView('editor-view');
+      }
+    }
+    setActiveTab('tab-editor');
+    currentView = 'editor';
+  }
+
+  function showChat() {
+    hideAllViews();
+    document.getElementById('full-view').style.display = 'flex';
+    document.getElementById('chat-view').style.display = 'block';
+    document.getElementById('chat-view').classList.add('fade-in');
+    setActiveTab('tab-chat');
+    document.getElementById('layout-toggle').style.display = 'none';
+    currentLayout = 'full';
+    updateLayoutButtons();
+    currentView = 'chat';
+  }
+
+  function setLayout(layout) {
+    currentLayout = layout;
+    updateLayoutButtons();
+
+    if (currentView === 'diff') {
+      showDiffView();
+    } else if (currentView === 'editor') {
+      showEditorView();
+    }
+  }
+
+  function updateLayoutButtons() {
+    document.getElementById('layout-full').classList.toggle('active', currentLayout === 'full');
+    document.getElementById('layout-split').classList.toggle('active', currentLayout === 'split');
+  }
+
+  function toggleTerminal() {
+    const panel = document.getElementById('terminal-panel');
+    const btn = document.getElementById('btn-terminal');
+    panel.classList.toggle('open');
+    btn.classList.toggle('active');
+  }
+
+  function toggleChanges() {
+    const col = document.getElementById('changes-col');
+    const btn = document.getElementById('btn-changes');
+    col.classList.toggle('closed');
+    btn.classList.toggle('active');
+  }
+
+  let deletingBranch = null;
+
+  function confirmDelete(branch) {
+    deletingBranch = branch;
+    document.getElementById('delete-branch-name').textContent = branch;
+    const baseBranches = {
+      'feature/login': 'main',
+      'fix/csv-export': 'main',
+      'refactor/api-v2': 'develop',
+      'feature/notification': 'develop',
+    };
+    document.getElementById('delete-base-branch').textContent = baseBranches[branch] || 'main';
+    document.getElementById('delete-modal').classList.add('active');
+  }
+
+  function closeDeleteModal() {
+    document.getElementById('delete-modal').classList.remove('active');
+    deletingBranch = null;
+  }
+
+  function executeDelete() {
+    alert(deletingBranch + ' を削除しました（モック）');
+    closeDeleteModal();
+  }
+
+  function openNewModal() {
+    document.getElementById('new-modal').classList.add('active');
+    document.getElementById('new-branch').value = '';
+    document.getElementById('new-task').value = '';
+    document.getElementById('new-memo').value = '';
+    document.getElementById('new-base').selectedIndex = 0;
+  }
+
+  function closeNewModal() {
+    document.getElementById('new-modal').classList.remove('active');
+  }
+
+  function executeNew() {
+    const base = document.getElementById('new-base').value;
+    const branch = document.getElementById('new-branch').value || 'feature/untitled';
+    const task = document.getElementById('new-task').value;
+    alert(base + ' から ' + branch + ' を作成（モック）');
+    closeNewModal();
+  }
+
+  function toggleFolder(el) {
+    const children = el.nextElementSibling;
+    if (children && children.classList.contains('tree-children')) {
+      children.classList.toggle('hidden');
+      const arrow = el.querySelector('.tree-arrow');
+      if (arrow) arrow.classList.toggle('open');
+    }
+  }
+
+  function showFile(filepath) {
+    document.querySelectorAll('.tree-item.file').forEach(f => f.classList.remove('active'));
+    document.querySelectorAll('.change-file').forEach(f => f.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    document.getElementById('editor-filename').textContent = filepath;
+    document.getElementById('layout-toggle').style.display = 'flex';
+
+    if (currentLayout === 'split') {
+      showSplitView('editor-view');
+    } else {
+      showFullView('editor-view');
+    }
+    setActiveTab('tab-editor');
+    currentView = 'editor';
+  }
+
+  // ── Drag & Drop ──
+  const mainArea = document.getElementById('main-area');
+  const dropOverlay = document.getElementById('drop-overlay');
+  let dragCounter = 0;
+
+  mainArea.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    dragCounter++;
+    dropOverlay.classList.add('active');
+    // Show split zones when there's already content
+    if (currentView !== 'chat') {
+      dropOverlay.classList.add('split-mode');
+    } else {
+      dropOverlay.classList.remove('split-mode');
+    }
+  });
+
+  mainArea.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dragCounter--;
+    if (dragCounter === 0) {
+      dropOverlay.classList.remove('active');
+      dropOverlay.classList.remove('split-mode');
+    }
+  });
+
+  mainArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+  });
+
+  // Zone hover effects
+  ['drop-zone-full', 'drop-zone-top', 'drop-zone-bottom'].forEach(id => {
+    const zone = document.getElementById(id);
+    zone.addEventListener('dragenter', () => zone.classList.add('dragover'));
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dragCounter = 0;
+      dropOverlay.classList.remove('active');
+      dropOverlay.classList.remove('split-mode');
+      zone.classList.remove('dragover');
+
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        const filename = files[0].name;
+        document.getElementById('editor-filename').textContent = filename;
+
+        if (id === 'drop-zone-top') {
+          currentLayout = 'split';
+          updateLayoutButtons();
+          document.getElementById('layout-toggle').style.display = 'flex';
+          showSplitView('editor-view');
+          setActiveTab('tab-editor');
+          currentView = 'editor';
+        } else {
+          currentLayout = 'full';
+          updateLayoutButtons();
+          document.getElementById('layout-toggle').style.display = 'flex';
+          showFullView('editor-view');
+          setActiveTab('tab-editor');
+          currentView = 'editor';
+        }
+      }
+    });
+  });
+
+  mainArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dragCounter = 0;
+    dropOverlay.classList.remove('active');
+    dropOverlay.classList.remove('split-mode');
+  });
+</script>
+</body>
+</html>
