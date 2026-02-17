@@ -1,0 +1,24 @@
+[workspace]
+resolver = "2"
+members = [
+  "src-tauri",
+  "crates/adapter",
+  "crates/data",
+  "crates/kernel",
+  "crates/registry",
+  "crates/shared"
+]
+
+[workspace.dependencies]
+# 内部クレート
+adapter = { path = "./crates/adapter"}
+data = { path = "./crates/data"}
+kernel = { path = "./crates/kernel"}
+registry = { path = "./crates/registry" }
+shared = { path = "./crates/shared" }
+
+# 外部依存
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
