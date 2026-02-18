@@ -9,3 +9,6 @@ lint-fix:
 
 format:
 	pnpm biome format --fix .
+
+test:
+	pnpm test
