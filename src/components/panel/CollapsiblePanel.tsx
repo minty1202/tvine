@@ -1,6 +1,6 @@
 import { Box, Text, ActionIcon, type BoxProps } from '@mantine/core';
 import { type ReactNode } from 'react';
-import { Panel } from '@/components/Panel';
+import { Panel } from '@/components/panel/Panel';
 
 export interface CollapsiblePanelProps {
   opened: boolean;

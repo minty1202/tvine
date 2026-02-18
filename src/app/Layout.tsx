@@ -1,7 +1,7 @@
 import { Flex, Box, Text, ActionIcon } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { Panel } from '@/components/Panel';
-import { CollapsiblePanel } from '@/components/CollapsiblePanel';
+import { Panel } from '@/components/panel/Panel';
+import { CollapsiblePanel } from '@/components/panel/CollapsiblePanel';
 
 export function Layout() {
   const [changesOpened, changesHandlers] = useDisclosure(true);
