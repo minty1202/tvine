@@ -2015,7 +2015,7 @@
 <script>
   let currentView = 'chat';
   let currentLayout = 'full'; // 'full' or 'split'
-  let droppedFile = null;
+  const droppedFile = null;
 
   function selectWorktree(el, branch) {
     document.querySelectorAll('.wt-item').forEach(i => i.classList.remove('selected'));

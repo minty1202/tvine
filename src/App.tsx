@@ -1,8 +1,8 @@
 import '@mantine/core/styles.css';
 
 import { MantineProvider } from '@mantine/core';
-import { theme } from '@/config/theme/mantine';
 import { Layout } from '@/app/Layout';
+import { theme } from '@/config/theme/mantine';
 
 function App() {
   return (
