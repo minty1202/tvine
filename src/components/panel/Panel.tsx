@@ -1,5 +1,11 @@
-import { Box, Flex, Divider, type BoxProps, type FlexProps } from '@mantine/core';
-import { type ReactNode } from 'react';
+import {
+  Box,
+  type BoxProps,
+  Divider,
+  Flex,
+  type FlexProps,
+} from '@mantine/core';
+import type { ReactNode } from 'react';
 import { layout } from '@/config/theme/tokens';
 
 // Panel (root)
@@ -23,11 +29,16 @@ function PanelRoot({ children, style: styleProp, ...rest }: PanelProps) {
 }
 
 // Panel.Header
-export interface PanelHeaderProps extends Omit<FlexProps, 'h' | 'px' | 'align'> {
+export interface PanelHeaderProps
+  extends Omit<FlexProps, 'h' | 'px' | 'align'> {
   children: ReactNode;
 }
 
-function PanelHeader({ children, style: styleProp, ...rest }: PanelHeaderProps) {
+function PanelHeader({
+  children,
+  style: styleProp,
+  ...rest
+}: PanelHeaderProps) {
   return (
     <Flex
       h={layout.headerHeight}

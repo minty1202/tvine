@@ -16,13 +16,16 @@ export const usePanelStore = create<PanelState>((set, get) => ({
       set({ panels: { ...get().panels, [key]: defaultOpened } });
     }
   },
-  toggle: (key) => set((s) => ({ panels: { ...s.panels, [key]: !s.panels[key] } })),
+  toggle: (key) =>
+    set((s) => ({ panels: { ...s.panels, [key]: !s.panels[key] } })),
   open: (key) => set((s) => ({ panels: { ...s.panels, [key]: true } })),
   close: (key) => set((s) => ({ panels: { ...s.panels, [key]: false } })),
 }));
 
 export function usePanelState(key: string, defaultOpened = false) {
   const register = usePanelStore((s) => s.register);
-  useEffect(() => { register(key, defaultOpened); }, [register, key, defaultOpened]);
+  useEffect(() => {
+    register(key, defaultOpened);
+  }, [register, key, defaultOpened]);
   return usePanelStore((s) => s.panels[key] ?? defaultOpened);
 }
