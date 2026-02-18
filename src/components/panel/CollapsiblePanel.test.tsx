@@ -1,10 +1,10 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { MantineProvider } from "@mantine/core";
-import { describe, expect, it, beforeEach } from "vitest";
-import { theme } from "@/config/theme/mantine";
-import { CollapsiblePanel } from "./CollapsiblePanel";
-import { usePanelStore } from "./store";
+import { MantineProvider } from '@mantine/core';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { theme } from '@/config/theme/mantine';
+import { CollapsiblePanel } from './CollapsiblePanel';
+import { usePanelStore } from './store';
 
 function renderWithMantine(ui: React.ReactElement) {
   return render(<MantineProvider theme={theme}>{ui}</MantineProvider>);
@@ -14,8 +14,8 @@ beforeEach(() => {
   usePanelStore.setState({ panels: {} });
 });
 
-describe("CollapsiblePanel", () => {
-  it("Toggle クリックでパネルの開閉が連動する", async () => {
+describe('CollapsiblePanel', () => {
+  it('Toggle クリックでパネルの開閉が連動する', async () => {
     const user = userEvent.setup();
 
     renderWithMantine(
@@ -37,19 +37,19 @@ describe("CollapsiblePanel", () => {
     );
 
     // 初期状態: 閉じている → ClosedBar が表示
-    expect(screen.getByText("Test Panel")).toBeInTheDocument();
-    expect(screen.queryByText("content")).not.toBeInTheDocument();
+    expect(screen.getByText('Test Panel')).toBeInTheDocument();
+    expect(screen.queryByText('content')).not.toBeInTheDocument();
 
     // Toggle クリックで開く
-    await user.click(screen.getByTitle("test"));
-    expect(screen.getByText("content")).toBeInTheDocument();
+    await user.click(screen.getByTitle('test'));
+    expect(screen.getByText('content')).toBeInTheDocument();
 
     // 再クリックで閉じる
-    await user.click(screen.getByTitle("test"));
-    expect(screen.queryByText("content")).not.toBeInTheDocument();
+    await user.click(screen.getByTitle('test'));
+    expect(screen.queryByText('content')).not.toBeInTheDocument();
   });
 
-  it("閉じた状態のバーをクリックで開く", async () => {
+  it('閉じた状態のバーをクリックで開く', async () => {
     const user = userEvent.setup();
 
     renderWithMantine(
@@ -63,14 +63,14 @@ describe("CollapsiblePanel", () => {
       </CollapsiblePanel>,
     );
 
-    expect(screen.queryByText("bar content")).not.toBeInTheDocument();
+    expect(screen.queryByText('bar content')).not.toBeInTheDocument();
 
     // ClosedBar をクリック
-    await user.click(screen.getByText("Bar Panel"));
-    expect(screen.getByText("bar content")).toBeInTheDocument();
+    await user.click(screen.getByText('Bar Panel'));
+    expect(screen.getByText('bar content')).toBeInTheDocument();
   });
 
-  it("開いた状態のヘッダーをクリックで閉じる", async () => {
+  it('開いた状態のヘッダーをクリックで閉じる', async () => {
     const user = userEvent.setup();
 
     renderWithMantine(
@@ -84,10 +84,10 @@ describe("CollapsiblePanel", () => {
       </CollapsiblePanel>,
     );
 
-    expect(screen.getByText("header content")).toBeInTheDocument();
+    expect(screen.getByText('header content')).toBeInTheDocument();
 
     // Header をクリックで閉じる
-    await user.click(screen.getByText("Header Panel"));
-    expect(screen.queryByText("header content")).not.toBeInTheDocument();
+    await user.click(screen.getByText('Header Panel'));
+    expect(screen.queryByText('header content')).not.toBeInTheDocument();
   });
 });
