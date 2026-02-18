@@ -1,12 +1,11 @@
-import { Flex, Box, Text, ActionIcon } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { Flex, Box, Text } from '@mantine/core';
+import { IconFileDiff, IconTerminal2 } from '@tabler/icons-react';
 import { Panel } from '@/components/panel/Panel';
 import { CollapsiblePanel } from '@/components/panel/CollapsiblePanel';
 
-export function Layout() {
-  const [changesOpened, changesHandlers] = useDisclosure(true);
-  const [terminalOpened, terminalHandlers] = useDisclosure(false);
+const ICON_SIZE = 16;
 
+export function Layout() {
   return (
     <Flex h="100vh" style={{ overflow: 'hidden' }}>
       {/* Sidebar */}
@@ -22,22 +21,8 @@ export function Layout() {
       {/* Main - Claude Terminal */}
       <Panel style={{ flex: 1, minWidth: 0 }}>
         <Panel.Header gap={10} bg="dark.8">
-          <ActionIcon
-            variant={changesOpened ? 'light' : 'subtle'}
-            size="sm"
-            onClick={changesHandlers.toggle}
-            title="Changes"
-          >
-            <Text size="xs">C</Text>
-          </ActionIcon>
-          <ActionIcon
-            variant={terminalOpened ? 'light' : 'subtle'}
-            size="sm"
-            onClick={terminalHandlers.toggle}
-            title="Terminal"
-          >
-            <Text size="xs">T</Text>
-          </ActionIcon>
+          <CollapsiblePanel.Toggle panelKey="changes" icon={<IconFileDiff size={ICON_SIZE} />} defaultOpened />
+          <CollapsiblePanel.Toggle panelKey="terminal" icon={<IconTerminal2 size={ICON_SIZE} />} />
           <Text size="xs" c="dimmed">feature/login</Text>
         </Panel.Header>
         <Box bg="dark.9" style={{ flex: 1, padding: 12 }}>
@@ -49,13 +34,11 @@ export function Layout() {
 
       {/* Changes */}
       <CollapsiblePanel
-        opened={changesOpened}
-        onOpen={changesHandlers.open}
-        onClose={changesHandlers.close}
+        panelKey="changes"
         title="Changes"
-        icon="C"
-        openedProps={{ bg: 'dark.8' }}
-        closedProps={{ bg: 'dark.8' }}
+        icon={<IconFileDiff size={ICON_SIZE} />}
+        defaultOpened
+        bg="dark.8"
       >
         <Box p={8} style={{ flex: 1 }}>
           <Text size="xs" c="dimmed">Diff preview</Text>
@@ -66,13 +49,10 @@ export function Layout() {
 
       {/* Terminal */}
       <CollapsiblePanel
-        opened={terminalOpened}
-        onOpen={terminalHandlers.open}
-        onClose={terminalHandlers.close}
+        panelKey="terminal"
         title="Terminal"
-        icon="T"
-        openedProps={{ bg: 'dark.9' }}
-        closedProps={{ bg: 'dark.9' }}
+        icon={<IconTerminal2 size={ICON_SIZE} />}
+        bg="dark.9"
       >
         <Box p={12} style={{ flex: 1 }}>
           <Text size="xs" c="dimmed">Terminal content</Text>

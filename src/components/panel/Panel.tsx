@@ -7,10 +7,14 @@ export interface PanelProps extends BoxProps {
   children: ReactNode;
 }
 
-function PanelRoot({ children, style, ...rest }: PanelProps) {
+function PanelRoot({ children, style: styleProp, ...rest }: PanelProps) {
   return (
     <Box
-      style={{ display: 'flex', flexDirection: 'column', ...style }}
+      style={(theme) => ({
+        display: 'flex',
+        flexDirection: 'column' as const,
+        ...(typeof styleProp === 'function' ? styleProp(theme) : styleProp),
+      })}
       {...rest}
     >
       {children}
@@ -23,13 +27,16 @@ export interface PanelHeaderProps extends Omit<FlexProps, 'h' | 'px' | 'align'> 
   children: ReactNode;
 }
 
-function PanelHeader({ children, ...rest }: PanelHeaderProps) {
+function PanelHeader({ children, style: styleProp, ...rest }: PanelHeaderProps) {
   return (
     <Flex
       h={layout.headerHeight}
       px={layout.headerPaddingX}
       align="center"
-      style={{ borderBottom: '1px solid var(--mantine-color-dark-4)' }}
+      style={(theme) => ({
+        borderBottom: `1px solid ${theme.colors.dark[4]}`,
+        ...(typeof styleProp === 'function' ? styleProp(theme) : styleProp),
+      })}
       {...rest}
     >
       {children}
@@ -38,6 +45,7 @@ function PanelHeader({ children, ...rest }: PanelHeaderProps) {
 }
 
 // Panel.Divider
+// color prop を使用（Mantine コンポーネントのため）。PanelHeader は CSS borderBottom のため theme.colors で参照。
 function PanelDivider() {
   return <Divider orientation="vertical" color="dark.4" />;
 }
