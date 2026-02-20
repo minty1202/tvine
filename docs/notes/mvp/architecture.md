@@ -108,6 +108,18 @@ tvine(Rust)が起動時にUnix socketをlistenし、hookスクリプトがそこ
 - **Tailwind CSS**（レイアウト・細かい調整）
 - **Unix socket**（hooks通知受信）
 
+## 開発用 CLI
+
+バックエンドのロジックを Tauri（フロントエンド）なしで動作確認するための CLI バイナリ。
+CLI のコマンドは Tauri の invoke と同じものが並ぶ。入口が違うだけで、呼び出す core ロジックは同じ。
+
+```
+フロントエンド → invoke → src-tauri → registry → core ロジック
+CLI           → clap   → cli      → registry → core ロジック
+```
+
+開発専用のため、`cargo install -p tvine` には含まれない。
+
 ## Worktree作成先
 
 - デフォルト: プロジェクトと同階層（例: `my-app-worktrees/`）
