@@ -2,7 +2,7 @@ import { ActionIcon, Box, Text, useMantineTheme } from '@mantine/core';
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { Panel } from '@/components/panel/Panel';
-import { usePanelState, usePanelStore } from '@/components/panel/store';
+import { usePanel } from '@/components/panel/store';
 
 const TRANSITION = { duration: 0.2, ease: 'easeInOut' as const };
 
@@ -17,14 +17,13 @@ function Toggle({
   icon,
   defaultOpened,
 }: CollapsiblePanelToggleProps) {
-  const isOpen = usePanelState(panelKey, defaultOpened);
-  const toggle = usePanelStore((s) => s.toggle);
+  const [isOpen, { toggle }] = usePanel(panelKey, defaultOpened);
 
   return (
     <ActionIcon
       variant={isOpen ? 'light' : 'subtle'}
       size="sm"
-      onClick={() => toggle(panelKey)}
+      onClick={toggle}
       title={panelKey}
     >
       {icon}
@@ -119,9 +118,7 @@ function CollapsiblePanelRoot({
   bg,
 }: CollapsiblePanelProps) {
   const theme = useMantineTheme();
-  const opened = usePanelState(panelKey, defaultOpened);
-  const open = usePanelStore((s) => s.open);
-  const close = usePanelStore((s) => s.close);
+  const [opened, { open, close }] = usePanel(panelKey, defaultOpened);
 
   const [colorName, shade] = bg?.split('.') ?? [];
   const backgroundColor = bg
@@ -141,15 +138,11 @@ function CollapsiblePanelRoot({
       }}
     >
       {opened ? (
-        <OpenedContent
-          icon={icon}
-          title={title}
-          onClose={() => close(panelKey)}
-        >
+        <OpenedContent icon={icon} title={title} onClose={close}>
           {children}
         </OpenedContent>
       ) : (
-        <ClosedBar icon={icon} title={title} onClick={() => open(panelKey)} />
+        <ClosedBar icon={icon} title={title} onClick={open} />
       )}
     </motion.div>
   );

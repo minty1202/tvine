@@ -13,7 +13,7 @@ Worktree × AI 並列開発ツール。Tauri デスクトップアプリ（Rust 
 - Tauri (Rust + TypeScript)
 - React + TypeScript
 - Mantine v8（UI コンポーネント）
-- Zustand（状態管理）
+- Jotai（状態管理）
 - TanStack Query（データ取得・キャッシュ）
 - xterm.js（ターミナル表示）
 
@@ -38,7 +38,7 @@ Worktree × AI 並列開発ツール。Tauri デスクトップアプリ（Rust 
 - `src/app/` — エントリポイント、レイアウト
 - `src/features/` — 機能単位（feature 間の相互参照は禁止）
 - `src/components/` — 共有コンポーネント
-- `src/stores/` — ドメイン状態の Zustand ストア
+- `src/stores/` — ドメイン状態の Jotai atom
 - `src/config/` — 設定（テーマ等）
 - `src/hooks/` — 共有 hooks
 - `src/lib/` — 外部ライブラリのラッパー
@@ -54,7 +54,7 @@ Bulletproof React を参考にした feature ベース構成。
 - デザイントークンは `src/config/theme/tokens.ts`（Mantine の `other` は使わない）
 - Compound component パターン（`Panel.Header` 等）は `Object.assign` で実装
 
-## Zustand ストアの配置
+## Jotai atom の配置
 
 - ドメイン状態（セッション、ステータス等）→ `src/stores/`
 - UI の仕組みに閉じた状態（パネル開閉等）→ 使用するコンポーネントに co-locate（例: `src/components/panel/store.ts`）

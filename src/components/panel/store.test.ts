@@ -1,49 +1,46 @@
+import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { usePanelStore } from './store';
+import { resetPanelAtoms, usePanel } from './store';
 
 beforeEach(() => {
-  usePanelStore.setState({ panels: {} });
+  resetPanelAtoms();
 });
 
-describe('register', () => {
-  it('新しいキーを登録できる', () => {
-    usePanelStore.getState().register('files', true);
+describe('usePanel', () => {
+  it('デフォルト値で初期化される', () => {
+    const { result } = renderHook(() => usePanel('files', true));
 
-    expect(usePanelStore.getState().panels).toEqual({ files: true });
+    expect(result.current[0]).toBe(true);
   });
 
-  it('既存キーは上書きしない', () => {
-    usePanelStore.getState().register('files', true);
-    usePanelStore.getState().register('files', false);
+  it('既存キーのデフォルト値は上書きしない', () => {
+    renderHook(() => usePanel('files', true));
+    const { result } = renderHook(() => usePanel('files', false));
 
-    expect(usePanelStore.getState().panels.files).toBe(true);
+    expect(result.current[0]).toBe(true);
   });
-});
 
-describe('toggle', () => {
-  it('状態を反転する', () => {
-    usePanelStore.getState().register('files', false);
+  it('toggle で状態を反転する', () => {
+    const { result } = renderHook(() => usePanel('files', false));
 
-    usePanelStore.getState().toggle('files');
-    expect(usePanelStore.getState().panels.files).toBe(true);
+    act(() => result.current[1].toggle());
+    expect(result.current[0]).toBe(true);
 
-    usePanelStore.getState().toggle('files');
-    expect(usePanelStore.getState().panels.files).toBe(false);
+    act(() => result.current[1].toggle());
+    expect(result.current[0]).toBe(false);
   });
-});
 
-describe('open / close', () => {
   it('open で true に設定する', () => {
-    usePanelStore.getState().register('files', false);
+    const { result } = renderHook(() => usePanel('files', false));
 
-    usePanelStore.getState().open('files');
-    expect(usePanelStore.getState().panels.files).toBe(true);
+    act(() => result.current[1].open());
+    expect(result.current[0]).toBe(true);
   });
 
   it('close で false に設定する', () => {
-    usePanelStore.getState().register('files', true);
+    const { result } = renderHook(() => usePanel('files', true));
 
-    usePanelStore.getState().close('files');
-    expect(usePanelStore.getState().panels.files).toBe(false);
+    act(() => result.current[1].close());
+    expect(result.current[0]).toBe(false);
   });
 });
