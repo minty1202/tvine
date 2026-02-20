@@ -4,14 +4,14 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { theme } from '@/config/theme/mantine';
 import { CollapsiblePanel } from './CollapsiblePanel';
-import { usePanelStore } from './store';
+import { resetPanelAtoms } from './store';
 
 function renderWithMantine(ui: React.ReactElement) {
   return render(<MantineProvider theme={theme}>{ui}</MantineProvider>);
 }
 
 beforeEach(() => {
-  usePanelStore.setState({ panels: {} });
+  resetPanelAtoms();
 });
 
 describe('CollapsiblePanel', () => {

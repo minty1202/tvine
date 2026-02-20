@@ -1,31 +1,35 @@
-import { useEffect } from 'react';
-import { create } from 'zustand';
+import { atom, useAtom } from 'jotai';
 
-type PanelState = {
-  panels: Record<string, boolean>;
-  register: (key: string, defaultOpened: boolean) => void;
-  toggle: (key: string) => void;
-  open: (key: string) => void;
-  close: (key: string) => void;
+const panelAtoms = new Map<string, ReturnType<typeof atom<boolean>>>();
+
+function getPanelAtom(key: string, defaultOpened = false) {
+  if (!panelAtoms.has(key)) {
+    panelAtoms.set(key, atom(defaultOpened));
+  }
+  return panelAtoms.get(key)!;
+}
+
+type PanelActions = {
+  toggle: () => void;
+  open: () => void;
+  close: () => void;
 };
 
-export const usePanelStore = create<PanelState>((set, get) => ({
-  panels: {},
-  register: (key, defaultOpened) => {
-    if (!(key in get().panels)) {
-      set({ panels: { ...get().panels, [key]: defaultOpened } });
-    }
-  },
-  toggle: (key) =>
-    set((s) => ({ panels: { ...s.panels, [key]: !s.panels[key] } })),
-  open: (key) => set((s) => ({ panels: { ...s.panels, [key]: true } })),
-  close: (key) => set((s) => ({ panels: { ...s.panels, [key]: false } })),
-}));
+export function usePanel(
+  key: string,
+  defaultOpened = false,
+): [boolean, PanelActions] {
+  const [value, set] = useAtom(getPanelAtom(key, defaultOpened));
 
-export function usePanelState(key: string, defaultOpened = false) {
-  const register = usePanelStore((s) => s.register);
-  useEffect(() => {
-    register(key, defaultOpened);
-  }, [register, key, defaultOpened]);
-  return usePanelStore((s) => s.panels[key] ?? defaultOpened);
+  const actions: PanelActions = {
+    toggle: () => set((prev) => !prev),
+    open: () => set(true),
+    close: () => set(false),
+  };
+
+  return [value, actions];
+}
+
+export function resetPanelAtoms() {
+  panelAtoms.clear();
 }

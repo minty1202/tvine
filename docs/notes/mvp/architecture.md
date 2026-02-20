@@ -102,7 +102,7 @@ tvine(Rust)が起動時にUnix socketをlistenし、hookスクリプトがそこ
 - **Tauri** (Rust + TypeScript)
 - **React** + TypeScript（フロントエンド）
 - **Mantine**（UIコンポーネント）
-- **Zustand**（UI状態管理）
+- **Jotai**（状態管理）
 - **TanStack Query**（データ取得・キャッシュ）
 - **xterm.js**（Claude CLI表示）
 - **Tailwind CSS**（レイアウト・細かい調整）
