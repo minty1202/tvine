@@ -18,7 +18,7 @@ registry = { path = "./crates/registry" }
 shared = { path = "./crates/shared" }
 
 # 外部依存
-tauri = { version = "2", features = [] }
+tauri = { version = "2", features = ["custom-protocol"] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
