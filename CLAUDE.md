@@ -88,3 +88,8 @@ Bulletproof React を参考にした feature ベース構成。
 ### バックエンド（Rust）
 
 （未定）
+
+## PR 運用
+
+- ユーザーの指示でブランチを切って開発した PR には `🤖 Generated with Claude Code` の表記をつけない
+- Claude が単独で issue や PR を作成した場合のみつける
