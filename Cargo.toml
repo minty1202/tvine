@@ -6,7 +6,8 @@ members = [
   "crates/data",
   "crates/kernel",
   "crates/registry",
-  "crates/shared"
+  "crates/shared",
+  "crates/cli"
 ]
 
 [workspace.dependencies]
@@ -22,3 +23,4 @@ tauri = { version = "2", features = ["custom-protocol"] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+clap = { version = "4.5.60", features = ["derive"]}
