@@ -114,8 +114,8 @@ tvine(Rust)が起動時にUnix socketをlistenし、hookスクリプトがそこ
 CLI のコマンドは Tauri の invoke と同じものが並ぶ。入口が違うだけで、呼び出す core ロジックは同じ。
 
 ```
-フロントエンド → invoke → src-tauri → registry → core ロジック
-CLI           → clap   → cli      → registry → core ロジック
+フロントエンド → invoke → src-tauri → api → registry → core ロジック
+CLI           → clap   → cli      → api → registry → core ロジック
 ```
 
 開発専用のため、`cargo install -p tvine` には含まれない。

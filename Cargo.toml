@@ -3,16 +3,18 @@ resolver = "2"
 members = [
   "src-tauri",
   "crates/adapter",
+  "crates/api",
   "crates/data",
   "crates/kernel",
   "crates/registry",
   "crates/shared",
-  "crates/cli"
+  "crates/cli",
 ]
 
 [workspace.dependencies]
 # 内部クレート
 adapter = { path = "./crates/adapter"}
+api = { path = "./crates/api" }
 data = { path = "./crates/data"}
 kernel = { path = "./crates/kernel"}
 registry = { path = "./crates/registry" }
