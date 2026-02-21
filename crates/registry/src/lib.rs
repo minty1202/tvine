@@ -1,14 +1,32 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+use std::sync::Arc;
+
+use adapter::repository::health::HealthCheckRepositoryImpl;
+use kernel::repository::health::HealthCheckRepository;
+
+#[derive(Clone)]
+pub struct AppRegistryImpl {
+    health_check_repository: Arc<dyn HealthCheckRepository>,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+impl AppRegistryImpl {
+    pub fn new() -> Self {
+        let health_check_repository = Arc::new(HealthCheckRepositoryImpl::new());
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+        Self {
+            health_check_repository,
+        }
     }
 }
+
+#[mockall::automock]
+pub trait AppRegistry {
+    fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository>;
+}
+
+impl AppRegistry for AppRegistryImpl {
+    fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository> {
+        self.health_check_repository.clone()
+    }
+}
+
+pub type AppRegistryState = Arc<dyn AppRegistry + Send + Sync + 'static>;

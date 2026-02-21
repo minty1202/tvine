@@ -1,0 +1,4 @@
+[tasks.cli]
+workspace = false
+command = "cargo"
+args = ["run", "-p", "cli", "--", "${@}"]
