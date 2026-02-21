@@ -19,14 +19,14 @@ impl AppRegistryImpl {
 }
 
 #[mockall::automock]
-pub trait AppRegistryExt {
+pub trait AppRegistry {
     fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository>;
 }
 
-impl AppRegistryExt for AppRegistryImpl {
+impl AppRegistry for AppRegistryImpl {
     fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository> {
         self.health_check_repository.clone()
     }
 }
 
-pub type AppRegistry = Arc<dyn AppRegistryExt + Send + Sync + 'static>;
+pub type AppRegistryState = Arc<dyn AppRegistry + Send + Sync + 'static>;
