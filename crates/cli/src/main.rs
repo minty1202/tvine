@@ -34,7 +34,7 @@ async fn main() {
         }
         SubCommands::HealthCheck => {
             let result = handler::health::health_check(&registry).await;
-            println!("{}", result);
+            println!("{result}");
         }
     }
 }
