@@ -8,6 +8,7 @@ pub struct AppRegistryImpl {
     health_check_repository: Arc<dyn HealthCheckRepository>,
 }
 
+#[allow(clippy::new_without_default)]
 impl AppRegistryImpl {
     pub fn new() -> Self {
         let health_check_repository = Arc::new(HealthCheckRepositoryImpl::new());
