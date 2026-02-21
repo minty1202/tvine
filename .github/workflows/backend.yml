@@ -18,7 +18,4 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - run: cargo fmt --check -p kernel -p adapter -p registry -p api -p cli -p shared -p data
-      - run: cargo clippy -p kernel -p adapter -p registry -p api -p cli -p shared -p data -- -D warnings
-      - run: cargo check -p kernel -p adapter -p registry -p api -p cli -p shared -p data
-      - run: cargo test -p kernel -p adapter -p registry -p api -p cli -p shared -p data
+      - run: make backend-ci
