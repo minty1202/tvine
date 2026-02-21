@@ -3,10 +3,12 @@ import { atom, useAtom } from 'jotai';
 const panelAtoms = new Map<string, ReturnType<typeof atom<boolean>>>();
 
 function getPanelAtom(key: string, defaultOpened = false) {
-  if (!panelAtoms.has(key)) {
-    panelAtoms.set(key, atom(defaultOpened));
-  }
-  return panelAtoms.get(key)!;
+  const existing = panelAtoms.get(key);
+  if (existing) return existing;
+
+  const newAtom = atom(defaultOpened);
+  panelAtoms.set(key, newAtom);
+  return newAtom;
 }
 
 type PanelActions = {
