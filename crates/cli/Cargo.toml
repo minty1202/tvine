@@ -6,6 +6,8 @@ edition = "2021"
 [dependencies]
 api.workspace = true
 registry.workspace = true
+shared.workspace = true
 
+anyhow.workspace = true
 clap.workspace = true
 tokio.workspace = true
