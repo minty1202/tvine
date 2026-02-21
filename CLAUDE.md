@@ -103,6 +103,10 @@ Bulletproof React を参考にした feature ベース構成。
 
 実装計画ファイルはマージ後も残す（実装判断の記録として）。
 
+## Claude Code の注意事項
+
+- `make` コマンドはシェル関数との衝突で使えない。`/usr/bin/make` を使うこと
+
 ## PR 運用
 
 - ユーザーの指示でブランチを切って開発した PR には `🤖 Generated with Claude Code` の表記をつけない
