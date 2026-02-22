@@ -761,6 +761,9 @@ dependencies = [
 [[package]]
 name = "data"
 version = "0.1.0"
+dependencies = [
+ "dirs",
+]
 
 [[package]]
 name = "deranged"
