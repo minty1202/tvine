@@ -14,11 +14,23 @@ struct CreateArgs {
 }
 
 #[derive(Subcommand, Debug)]
-enum SubCommands {
-    CreateSession(CreateArgs),
-    HealthCheck,
+enum OperatorCommands {
     Init,
     Teardown,
+}
+
+#[derive(Subcommand, Debug)]
+enum HandlerCommands {
+    CreateSession(CreateArgs),
+    HealthCheck,
+}
+
+#[derive(Subcommand, Debug)]
+enum SubCommands {
+    #[command(flatten)]
+    Operator(OperatorCommands),
+    #[command(flatten)]
+    Handler(HandlerCommands),
 }
 
 #[derive(Parser)]
@@ -40,21 +52,28 @@ fn handle_result<T: Display>(result: AppResult<T>) {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
-    let registry = AppRegistryImpl::new();
 
     match cli.subcommand {
-        SubCommands::CreateSession(args) => {
-            println!("hello create session");
-            println!("{}", args.name);
-        }
-        SubCommands::HealthCheck => {
-            handle_result(handler::health::health_check(&registry).await);
-        }
-        SubCommands::Init => {
-            println!("hello init")
-        }
-        SubCommands::Teardown => {
-            println!("hello teardown")
+        SubCommands::Operator(operator) => match operator {
+            OperatorCommands::Init => {
+                println!("hello init");
+            }
+            OperatorCommands::Teardown => {
+                println!("hello teardown");
+            }
+        },
+        SubCommands::Handler(handler) => {
+            let registry = AppRegistryImpl::new();
+
+            match handler {
+                HandlerCommands::CreateSession(args) => {
+                    println!("hello create session");
+                    println!("{}", args.name);
+                }
+                HandlerCommands::HealthCheck => {
+                    handle_result(handler::health::health_check(&registry).await);
+                }
+            }
         }
     }
 
