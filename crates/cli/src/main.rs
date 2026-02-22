@@ -17,6 +17,8 @@ struct CreateArgs {
 enum SubCommands {
     CreateSession(CreateArgs),
     HealthCheck,
+    Init,
+    Teardown,
 }
 
 #[derive(Parser)]
@@ -47,6 +49,12 @@ async fn main() -> anyhow::Result<()> {
         }
         SubCommands::HealthCheck => {
             handle_result(handler::health::health_check(&registry).await);
+        }
+        SubCommands::Init => {
+            println!("hello init")
+        }
+        SubCommands::Teardown => {
+            println!("hello teardown")
         }
     }
 
