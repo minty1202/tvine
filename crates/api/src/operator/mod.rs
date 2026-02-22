@@ -14,7 +14,7 @@ pub fn prerequisite_check(registry: &dyn BootstrapRegistry) -> AppResult<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kernel::prerequisite::MockPrerequisite;
+    use kernel::manage::prerequisite::MockPrerequisite;
 
     // テスト用の BootstrapRegistry 実装
     // MockBootstrapRegistry は &dyn Prerequisite の返却が難しいため、手動で用意する
@@ -23,7 +23,7 @@ mod tests {
     }
 
     impl BootstrapRegistry for TestBootstrapRegistry {
-        fn prerequisite(&self) -> &dyn kernel::prerequisite::Prerequisite {
+        fn prerequisite(&self) -> &dyn kernel::manage::prerequisite::Prerequisite {
             &self.prerequisite
         }
     }

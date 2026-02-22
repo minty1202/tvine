@@ -1,2 +1,2 @@
-pub mod prerequisite;
+pub mod manage;
 pub mod repository;

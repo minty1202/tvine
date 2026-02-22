@@ -1,5 +1,5 @@
 use adapter::prerequisite::PrerequisiteImpl;
-use kernel::prerequisite::Prerequisite;
+use kernel::manage::prerequisite::Prerequisite;
 
 pub struct BootstrapRegistryImpl {
     prerequisite: Box<dyn Prerequisite>,
