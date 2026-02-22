@@ -2,3 +2,17 @@
 workspace = false
 command = "cargo"
 args = ["run", "-p", "cli", "--", "${@}"]
+
+[tasks.lint]
+workspace = false
+script = [
+    "cargo fmt --check",
+    "cargo clippy -- -D warnings",
+]
+
+[tasks.fmt]
+workspace = false
+script = [
+    "cargo fmt",
+    "cargo clippy --fix --allow-dirty",
+]
