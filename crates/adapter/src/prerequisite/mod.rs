@@ -1,5 +1,5 @@
-use kernel::prerequisite::Prerequisite;
 use exec::exists;
+use kernel::prerequisite::Prerequisite;
 
 #[derive(Default)]
 pub struct PrerequisiteImpl;
