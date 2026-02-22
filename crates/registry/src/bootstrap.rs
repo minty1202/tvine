@@ -1,4 +1,4 @@
-use adapter::prerequisite::PrerequisiteImpl;
+use adapter::manage::prerequisite::PrerequisiteImpl;
 use kernel::manage::prerequisite::Prerequisite;
 
 pub struct BootstrapRegistryImpl {
