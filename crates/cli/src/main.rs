@@ -3,8 +3,8 @@ use std::process;
 
 use clap::{Parser, Subcommand};
 
-use api::handler;
-use registry::AppRegistryImpl;
+use api::{handler, operator};
+use registry::{AppRegistryImpl, BootstrapRegistryImpl};
 use shared::error::AppResult;
 
 #[derive(Parser, Debug)]
@@ -49,9 +49,19 @@ fn handle_result<T: Display>(result: AppResult<T>) {
     }
 }
 
+fn handle_error(result: AppResult<()>) {
+    if let Err(err) = result {
+        eprintln!("{err}");
+        process::exit(1);
+    }
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
+
+    let bootstrap = BootstrapRegistryImpl::new();
+    handle_error(operator::prerequisite_check(&bootstrap));
 
     match cli.subcommand {
         SubCommands::Operator(operator) => match operator {
