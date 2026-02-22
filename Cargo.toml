@@ -9,7 +9,12 @@ members = [
   "crates/registry",
   "crates/shared",
   "crates/cli",
+  "crates/exec",
 ]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
 
 [workspace.dependencies]
 # 内部クレート
@@ -19,6 +24,7 @@ data = { path = "./crates/data"}
 kernel = { path = "./crates/kernel"}
 registry = { path = "./crates/registry" }
 shared = { path = "./crates/shared" }
+exec = { path = "./crates/exec" }
 
 # 外部依存
 tokio = { version = "1.49.0", features = ["rt-multi-thread", "macros"] }

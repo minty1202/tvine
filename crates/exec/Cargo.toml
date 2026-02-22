@@ -1,8 +1,6 @@
 [package]
-name = "shared"
+name = "exec"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
-serde.workspace = true
-thiserror.workspace = true
