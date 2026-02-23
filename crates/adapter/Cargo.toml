@@ -10,3 +10,6 @@ data.workspace = true
 
 async-trait.workspace = true
 derive-new.workspace = true
+
+[dev-dependencies]
+shared.workspace = true

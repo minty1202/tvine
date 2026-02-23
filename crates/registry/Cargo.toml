@@ -6,5 +6,6 @@ edition.workspace = true
 [dependencies]
 adapter.workspace = true
 kernel.workspace = true
+data.workspace = true
 
 mockall.workspace = true

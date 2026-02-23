@@ -4,8 +4,12 @@ use std::process;
 use clap::{Parser, Subcommand};
 
 use api::{handler, operator};
+use data::DataContext;
 use registry::{AppRegistryImpl, BootstrapRegistryImpl};
-use shared::error::AppResult;
+use shared::{
+    error::{AppError, AppResult},
+    utility,
+};
 
 #[derive(Parser, Debug)]
 struct CreateArgs {
@@ -60,8 +64,11 @@ fn handle_error(result: AppResult<()>) {
 async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
-    let bootstrap = BootstrapRegistryImpl::new();
+    let home_dir = utility::home_dir().map_err(|e| AppError::IoError(e.to_string()))?;
+    let data_ctx = DataContext::new(home_dir);
+    let bootstrap = BootstrapRegistryImpl::new(data_ctx);
     handle_error(operator::prerequisite_check(&bootstrap));
+    handle_error(operator::initialize(&bootstrap));
 
     match cli.subcommand {
         SubCommands::Operator(operator) => match operator {

@@ -1,30 +1,35 @@
-use adapter::manage::prerequisite::PrerequisiteImpl;
-use kernel::manage::prerequisite::Prerequisite;
+use adapter::manage::{initializer::InitializerImpl, prerequisite::PrerequisiteImpl};
+use data::DataContext;
+use kernel::manage::{initializer::Initializer, prerequisite::Prerequisite};
 
 pub struct BootstrapRegistryImpl {
+    initializer: Box<dyn Initializer>,
     prerequisite: Box<dyn Prerequisite>,
 }
 
-impl Default for BootstrapRegistryImpl {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl BootstrapRegistryImpl {
-    pub fn new() -> Self {
+    pub fn new(data: DataContext) -> Self {
+        let initializer = Box::new(InitializerImpl::new(data));
         let prerequisite = Box::new(PrerequisiteImpl);
 
-        Self { prerequisite }
+        Self {
+            initializer,
+            prerequisite,
+        }
     }
 }
 
 #[mockall::automock]
 pub trait BootstrapRegistry {
+    fn initializer(&self) -> &dyn Initializer;
     fn prerequisite(&self) -> &dyn Prerequisite;
 }
 
 impl BootstrapRegistry for BootstrapRegistryImpl {
+    fn initializer(&self) -> &dyn Initializer {
+        self.initializer.as_ref()
+    }
+
     fn prerequisite(&self) -> &dyn Prerequisite {
         self.prerequisite.as_ref()
     }

@@ -5,6 +5,7 @@ edition.workspace = true
 
 [dependencies]
 api.workspace = true
+data.workspace = true
 registry.workspace = true
 shared.workspace = true
 

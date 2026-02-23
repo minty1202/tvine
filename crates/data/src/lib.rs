@@ -1,17 +1,15 @@
-use std::path::{PathBuf, Path};
+use std::path::{Path, PathBuf};
 
 pub mod manage;
 
 pub struct DataContext {
-    base_path: PathBuf
+    base_path: PathBuf,
 }
 
 impl DataContext {
     pub fn new(home_dir: PathBuf) -> Self {
         let base_path = home_dir.join(".tvine");
-        Self {
-            base_path
-        }
+        Self { base_path }
     }
 
     pub fn base_path(&self) -> &Path {
