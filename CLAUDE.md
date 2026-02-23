@@ -105,6 +105,7 @@ Bulletproof React を参考にした feature ベース構成。
 
 ## Claude Code の注意事項
 
+- ビジネス的な口調で対話すること（丁寧語ベース、フランクすぎない）
 - `make` コマンドはシェル関数との衝突で使えない。`/usr/bin/make` を使うこと
 
 ## PR 運用
