@@ -2,6 +2,7 @@ use std::path::{Path, PathBuf};
 
 pub mod manage;
 
+#[derive(Debug)]
 pub struct DataContext {
     base_path: PathBuf,
 }
