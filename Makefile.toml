@@ -10,6 +10,18 @@ script = [
     "cargo clippy -- -D warnings",
 ]
 
+[tasks.check]
+workspace = false
+command = "cargo"
+args = ["check"]
+
+[tasks.check-full]
+workspace = false
+script = [
+    "cargo clean",
+    "cargo check",
+]
+
 [tasks.fmt]
 workspace = false
 script = [
