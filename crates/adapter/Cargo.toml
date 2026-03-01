@@ -7,6 +7,7 @@ edition.workspace = true
 kernel.workspace = true
 exec.workspace = true
 data.workspace = true
+client.workspace = true
 
 async-trait.workspace = true
 derive-new.workspace = true
