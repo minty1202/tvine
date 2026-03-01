@@ -13,3 +13,21 @@ impl GitRepository for GitRepositoryImpl {
         self.git.project_root()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use client::git::MockClient;
+
+    #[test]
+    fn project_root_delegates_to_git_client() {
+        let mut mock = MockClient::new();
+        mock.expect_project_root()
+            .returning(|| PathBuf::from("/home/user/dev/myapp"));
+
+        let repo = GitRepositoryImpl::new(Box::new(mock));
+        let result = repo.project_root();
+
+        assert_eq!(result, PathBuf::from("/home/user/dev/myapp"));
+    }
+}
