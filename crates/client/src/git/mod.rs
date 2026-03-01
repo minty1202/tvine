@@ -3,9 +3,10 @@ pub mod error;
 use error::{Error as GitError, GitResult};
 use git2::Repository;
 use std::path::PathBuf;
+use std::sync::Mutex;
 
 pub struct ClientImpl {
-    repo: Repository,
+    repo: Mutex<Repository>,
 }
 
 #[mockall::automock]
@@ -18,13 +19,18 @@ impl ClientImpl {
     pub fn new() -> GitResult<Self> {
         let repo = Repository::discover(".").map_err(|_| GitError::NotARepository)?;
 
-        Ok(Self { repo })
+        Ok(Self {
+            repo: Mutex::new(repo),
+        })
     }
 }
 
 impl Client for ClientImpl {
     fn project_root(&self) -> PathBuf {
-        let repo = &self.repo;
+        let repo = self
+            .repo
+            .lock()
+            .expect("mutex が poisoned されていないこと");
         let work_dir_path = repo
             .workdir()
             .expect("discover 成功後のため workdir は常に Some を返す");

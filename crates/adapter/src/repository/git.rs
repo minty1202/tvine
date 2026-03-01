@@ -1,11 +1,11 @@
-use std::path::PathBuf; 
-use derive_new::new;
 use client::git::Client as GitClient;
+use derive_new::new;
 use kernel::repository::git::GitRepository;
+use std::path::PathBuf;
 
 #[derive(new)]
 pub struct GitRepositoryImpl {
-    git: Box<dyn GitClient>
+    git: Box<dyn GitClient + Send + Sync>,
 }
 
 impl GitRepository for GitRepositoryImpl {

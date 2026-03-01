@@ -1,18 +1,18 @@
 use std::sync::Arc;
 
 use adapter::repository::{git::GitRepositoryImpl, health::HealthCheckRepositoryImpl};
-use kernel::repository::{git::GitRepository, health::HealthCheckRepository};
 use client::git::Client as GitClient;
+use kernel::repository::{git::GitRepository, health::HealthCheckRepository};
 
 #[derive(Clone)]
 pub struct AppRegistryImpl {
     health_check_repository: Arc<dyn HealthCheckRepository>,
-    git_repository: Arc<dyn GitRepository>
+    git_repository: Arc<dyn GitRepository>,
 }
 
 #[allow(clippy::new_without_default)]
 impl AppRegistryImpl {
-    pub fn new(git_client: Box<dyn GitClient>) -> Self {
+    pub fn new(git_client: Box<dyn GitClient + Send + Sync>) -> Self {
         let health_check_repository = Arc::new(HealthCheckRepositoryImpl::new());
         let git_repository = Arc::new(GitRepositoryImpl::new(git_client));
 
