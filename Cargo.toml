@@ -10,6 +10,7 @@ members = [
   "crates/shared",
   "crates/cli",
   "crates/exec",
+  "crates/client",
 ]
 
 [workspace.package]
