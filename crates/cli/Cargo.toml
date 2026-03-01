@@ -8,6 +8,7 @@ api.workspace = true
 data.workspace = true
 registry.workspace = true
 shared.workspace = true
+client.workspace = true
 
 anyhow.workspace = true
 clap.workspace = true

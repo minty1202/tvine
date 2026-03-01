@@ -562,6 +562,7 @@ dependencies = [
  "anyhow",
  "api",
  "clap",
+ "client",
  "data",
  "registry",
  "shared",
@@ -3232,6 +3233,7 @@ name = "registry"
 version = "0.1.0"
 dependencies = [
  "adapter",
+ "client",
  "data",
  "kernel",
  "mockall",

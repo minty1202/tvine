@@ -7,5 +7,6 @@ edition.workspace = true
 adapter.workspace = true
 kernel.workspace = true
 data.workspace = true
+client.workspace = true
 
 mockall.workspace = true

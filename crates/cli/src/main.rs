@@ -10,6 +10,7 @@ use shared::{
     error::{AppError, AppResult},
     utility,
 };
+use client::git::ClientImpl as GitClient;
 
 #[derive(Parser, Debug)]
 struct CreateArgs {
@@ -80,7 +81,10 @@ async fn main() -> anyhow::Result<()> {
             }
         },
         SubCommands::Handler(handler) => {
-            let registry = AppRegistryImpl::new();
+            let git_client = Box::new(
+                GitClient::new().map_err(|e| AppError::GitError(e.to_string()))?
+            );
+            let registry = AppRegistryImpl::new(git_client);
 
             match handler {
                 HandlerCommands::CreateSession(args) => {

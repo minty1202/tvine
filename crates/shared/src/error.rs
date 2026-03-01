@@ -9,6 +9,9 @@ pub enum AppError {
     #[error("IO エラー: {0}")]
     IoError(String),
 
+    #[error("Git エラー: {0}")]
+    GitError(String),
+
     #[error("予期せぬエラーが発生しました。")]
     InternalError,
 }
