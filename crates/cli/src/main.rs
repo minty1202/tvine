@@ -26,7 +26,6 @@ enum OperatorCommands {
 
 #[derive(Subcommand, Debug)]
 enum HandlerCommands {
-    Init,
     CreateSession(CreateArgs),
     HealthCheck,
 }
@@ -92,9 +91,6 @@ async fn main() -> anyhow::Result<()> {
             let registry = AppRegistryImpl::new(git_client, project_ctx);
 
             match handler {
-                HandlerCommands::Init => {
-                    println!("hello init");
-                }
                 HandlerCommands::CreateSession(args) => {
                     println!("hello create session");
                     println!("{}", args.name);
