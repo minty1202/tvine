@@ -1,3 +1,5 @@
+use data::manage::project::ensure_project_dir;
+use data::ProjectContext;
 use registry::BootstrapRegistry;
 use shared::error::{AppError, AppResult};
 
@@ -18,11 +20,27 @@ pub fn initialize(registry: &dyn BootstrapRegistry) -> AppResult<()> {
         .map_err(|e| AppError::IoError(e.to_string()))
 }
 
+pub fn initialize_project(ctx: &ProjectContext) -> AppResult<()> {
+    ensure_project_dir(ctx).map_err(|e| AppError::IoError(e.to_string()))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use data::{AppContext, ProjectId};
     use kernel::manage::initializer::MockInitializer;
     use kernel::manage::prerequisite::MockPrerequisite;
+    use std::sync::Arc;
+
+    fn setup() -> std::path::PathBuf {
+        let test_dir = shared::utility::test_dir().unwrap();
+        let _ = std::fs::remove_dir_all(&test_dir);
+        test_dir
+    }
+
+    fn cleanup(test_dir: &std::path::Path) {
+        let _ = std::fs::remove_dir_all(test_dir);
+    }
 
     // テスト用の BootstrapRegistry 実装
     // MockBootstrapRegistry は &dyn Prerequisite の返却が難しいため、手動で用意する
@@ -101,6 +119,37 @@ mod tests {
             prerequisite: MockPrerequisite::new(),
         };
         let result = initialize(&registry);
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), AppError::IoError(_)));
+    }
+
+    // initialize_project がプロジェクトディレクトリを作成する
+    #[test]
+    fn initialize_project_creates_project_directory() {
+        let test_dir = setup();
+        let app = Arc::new(AppContext::new(test_dir.clone()));
+        let repo_root = std::path::PathBuf::from("/Users/aki/dev/test");
+        let id = ProjectId::from(repo_root.as_path());
+        let ctx = ProjectContext::new(app, id, repo_root);
+
+        let result = initialize_project(&ctx);
+        assert!(result.is_ok());
+        assert!(ctx.storage_dir().join("project.json").exists());
+
+        cleanup(&test_dir);
+    }
+
+    // initialize_project が IO エラー時に AppError::IoError を返す
+    #[test]
+    fn initialize_project_returns_io_error_on_failure() {
+        let app = Arc::new(AppContext::new(std::path::PathBuf::from(
+            "/nonexistent/path",
+        )));
+        let repo_root = std::path::PathBuf::from("/Users/aki/dev/test");
+        let id = ProjectId::from(repo_root.as_path());
+        let ctx = ProjectContext::new(app, id, repo_root);
+
+        let result = initialize_project(&ctx);
         assert!(result.is_err());
         assert!(matches!(result.unwrap_err(), AppError::IoError(_)));
     }

@@ -1,16 +1,17 @@
 use std::fmt::Display;
 use std::process;
+use std::sync::Arc;
 
 use clap::{Parser, Subcommand};
 
 use api::{handler, operator};
-use data::AppContext;
+use client::git::{Client as GitClientTrait, ClientImpl as GitClient};
+use data::{AppContext, ProjectContext, ProjectId};
 use registry::{AppRegistryImpl, BootstrapRegistryImpl};
 use shared::{
     error::{AppError, AppResult},
     utility,
 };
-use client::git::ClientImpl as GitClient;
 
 #[derive(Parser, Debug)]
 struct CreateArgs {
@@ -20,12 +21,12 @@ struct CreateArgs {
 
 #[derive(Subcommand, Debug)]
 enum OperatorCommands {
-    Init,
     Teardown,
 }
 
 #[derive(Subcommand, Debug)]
 enum HandlerCommands {
+    Init,
     CreateSession(CreateArgs),
     HealthCheck,
 }
@@ -66,27 +67,34 @@ async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     let home_dir = utility::home_dir().map_err(|e| AppError::IoError(e.to_string()))?;
-    let app_ctx = AppContext::new(home_dir);
+
+    let app_ctx = AppContext::new(home_dir.clone());
     let bootstrap = BootstrapRegistryImpl::new(app_ctx);
     handle_error(operator::prerequisite_check(&bootstrap));
     handle_error(operator::initialize(&bootstrap));
 
     match cli.subcommand {
         SubCommands::Operator(operator) => match operator {
-            OperatorCommands::Init => {
-                println!("hello init");
-            }
             OperatorCommands::Teardown => {
                 println!("hello teardown");
             }
         },
         SubCommands::Handler(handler) => {
-            let git_client = Box::new(
-                GitClient::new().map_err(|e| AppError::GitError(e.to_string()))?
-            );
-            let registry = AppRegistryImpl::new(git_client);
+            // --- プロジェクト初期化 ---
+            let app_context = Arc::new(AppContext::new(home_dir));
+            let git_client =
+                Box::new(GitClient::new().map_err(|e| AppError::GitError(e.to_string()))?);
+            let repository_root = git_client.project_root();
+            let project_id = ProjectId::from(repository_root.as_path());
+            let project_ctx = ProjectContext::new(app_context, project_id, repository_root);
+            handle_error(operator::initialize_project(&project_ctx));
+
+            let registry = AppRegistryImpl::new(git_client, project_ctx);
 
             match handler {
+                HandlerCommands::Init => {
+                    println!("hello init");
+                }
                 HandlerCommands::CreateSession(args) => {
                     println!("hello create session");
                     println!("{}", args.name);

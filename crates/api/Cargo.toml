@@ -4,6 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+data.workspace = true
 kernel.workspace = true
 registry.workspace = true
 shared.workspace = true
