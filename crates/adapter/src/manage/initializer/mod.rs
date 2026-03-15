@@ -36,7 +36,8 @@ mod tests {
     // ensure_root_dir で .tvine ディレクトリが作成される
     #[test]
     fn ensure_root_dir_creates_tvine_directory() {
-        let test_dir = setup();
+        let test_dir = setup().join("ensure");
+        std::fs::create_dir_all(&test_dir).unwrap();
         let ctx = AppContext::new(test_dir.clone());
         let initializer = InitializerImpl::new(ctx);
 
@@ -50,7 +51,8 @@ mod tests {
     // remove_root_dir で .tvine ディレクトリが削除される
     #[test]
     fn remove_root_dir_deletes_tvine_directory() {
-        let test_dir = setup();
+        let test_dir = setup().join("remove");
+        std::fs::create_dir_all(&test_dir).unwrap();
         let ctx = AppContext::new(test_dir.clone());
         let initializer = InitializerImpl::new(ctx);
 
@@ -67,7 +69,8 @@ mod tests {
     // remove_root_dir はディレクトリが存在しなくてもエラーにならない
     #[test]
     fn remove_root_dir_succeeds_when_not_exists() {
-        let test_dir = setup();
+        let test_dir = setup().join("remove_not_exists");
+        std::fs::create_dir_all(&test_dir).unwrap();
         let ctx = AppContext::new(test_dir.clone());
         let initializer = InitializerImpl::new(ctx);
 
