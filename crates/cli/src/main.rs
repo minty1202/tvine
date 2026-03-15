@@ -76,7 +76,7 @@ async fn main() -> anyhow::Result<()> {
     match cli.subcommand {
         SubCommands::Operator(operator) => match operator {
             OperatorCommands::Teardown => {
-                println!("hello teardown");
+                handle_error(operator::teardown(&bootstrap));
             }
         },
         SubCommands::Handler(handler) => {

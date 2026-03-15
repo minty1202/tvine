@@ -20,6 +20,13 @@ pub fn initialize(registry: &dyn BootstrapRegistry) -> AppResult<()> {
         .map_err(|e| AppError::IoError(e.to_string()))
 }
 
+pub fn teardown(registry: &dyn BootstrapRegistry) -> AppResult<()> {
+    registry
+        .initializer()
+        .remove_root_dir()
+        .map_err(|e| AppError::IoError(e.to_string()))
+}
+
 pub fn initialize_project(ctx: &ProjectContext) -> AppResult<()> {
     ensure_project_dir(ctx).map_err(|e| AppError::IoError(e.to_string()))
 }
@@ -119,6 +126,39 @@ mod tests {
             prerequisite: MockPrerequisite::new(),
         };
         let result = initialize(&registry);
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), AppError::IoError(_)));
+    }
+
+    // teardown が成功した場合は Ok を返す
+    #[test]
+    fn teardown_returns_ok_when_remove_root_dir_succeeds() {
+        let mut mock = MockInitializer::new();
+        mock.expect_remove_root_dir().returning(|| Ok(()));
+
+        let registry = TestBootstrapRegistry {
+            initializer: mock,
+            prerequisite: MockPrerequisite::new(),
+        };
+        assert!(teardown(&registry).is_ok());
+    }
+
+    // teardown が失敗した場合は IoError を返す
+    #[test]
+    fn teardown_returns_io_error_when_remove_root_dir_fails() {
+        let mut mock = MockInitializer::new();
+        mock.expect_remove_root_dir().returning(|| {
+            Err(std::io::Error::new(
+                std::io::ErrorKind::PermissionDenied,
+                "permission denied",
+            ))
+        });
+
+        let registry = TestBootstrapRegistry {
+            initializer: mock,
+            prerequisite: MockPrerequisite::new(),
+        };
+        let result = teardown(&registry);
         assert!(result.is_err());
         assert!(matches!(result.unwrap_err(), AppError::IoError(_)));
     }

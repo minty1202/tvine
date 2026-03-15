@@ -1,4 +1,4 @@
-use data::manage::ensure_root_dir;
+use data::manage::{ensure_root_dir, remove_root_dir};
 use data::AppContext;
 use kernel::manage::initializer::Initializer;
 
@@ -12,6 +12,10 @@ pub struct InitializerImpl {
 impl Initializer for InitializerImpl {
     fn ensure_root_dir(&self) -> std::io::Result<()> {
         ensure_root_dir(&self.data)
+    }
+
+    fn remove_root_dir(&self) -> std::io::Result<()> {
+        remove_root_dir(&self.data)
     }
 }
 
@@ -29,7 +33,7 @@ mod tests {
         let _ = std::fs::remove_dir_all(test_dir);
     }
 
-    // ensure_root_dir で .tvine ディレクトリが実際に作成される
+    // ensure_root_dir で .tvine ディレクトリが作成される
     #[test]
     fn ensure_root_dir_creates_tvine_directory() {
         let test_dir = setup();
@@ -39,6 +43,36 @@ mod tests {
         let result = initializer.ensure_root_dir();
         assert!(result.is_ok());
         assert!(test_dir.join(".tvine").exists());
+
+        cleanup(&test_dir);
+    }
+
+    // remove_root_dir で .tvine ディレクトリが削除される
+    #[test]
+    fn remove_root_dir_deletes_tvine_directory() {
+        let test_dir = setup();
+        let ctx = AppContext::new(test_dir.clone());
+        let initializer = InitializerImpl::new(ctx);
+
+        initializer.ensure_root_dir().unwrap();
+        assert!(test_dir.join(".tvine").exists());
+
+        let result = initializer.remove_root_dir();
+        assert!(result.is_ok());
+        assert!(!test_dir.join(".tvine").exists());
+
+        cleanup(&test_dir);
+    }
+
+    // remove_root_dir はディレクトリが存在しなくてもエラーにならない
+    #[test]
+    fn remove_root_dir_succeeds_when_not_exists() {
+        let test_dir = setup();
+        let ctx = AppContext::new(test_dir.clone());
+        let initializer = InitializerImpl::new(ctx);
+
+        let result = initializer.remove_root_dir();
+        assert!(result.is_ok());
 
         cleanup(&test_dir);
     }
