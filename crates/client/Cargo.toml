@@ -1,0 +1,11 @@
+[package]
+name = "client"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+derive-new.workspace = true
+git2.workspace = true
+mockall.workspace = true
+serde.workspace = true
+thiserror.workspace = true 

@@ -105,9 +105,11 @@ Bulletproof React を参考にした feature ベース構成。
 
 ## Claude Code の注意事項
 
+- ビジネス的な口調で対話すること（丁寧語ベース、フランクすぎない）
 - `make` コマンドはシェル関数との衝突で使えない。`/usr/bin/make` を使うこと
 
-## PR 運用
+## コミット・PR 運用
 
+- コミットメッセージの `Co-Authored-By` は、Claude が実装もコミットも行った場合のみつける。ユーザーが実装し、コミットのみ依頼された場合はつけない
 - ユーザーの指示でブランチを切って開発した PR には `🤖 Generated with Claude Code` の表記をつけない
 - Claude が単独で issue や PR を作成した場合のみつける

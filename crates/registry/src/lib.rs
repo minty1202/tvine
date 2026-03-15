@@ -1,33 +1,5 @@
-use std::sync::Arc;
+pub mod app;
+pub mod bootstrap;
 
-use adapter::repository::health::HealthCheckRepositoryImpl;
-use kernel::repository::health::HealthCheckRepository;
-
-#[derive(Clone)]
-pub struct AppRegistryImpl {
-    health_check_repository: Arc<dyn HealthCheckRepository>,
-}
-
-#[allow(clippy::new_without_default)]
-impl AppRegistryImpl {
-    pub fn new() -> Self {
-        let health_check_repository = Arc::new(HealthCheckRepositoryImpl::new());
-
-        Self {
-            health_check_repository,
-        }
-    }
-}
-
-#[mockall::automock]
-pub trait AppRegistry {
-    fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository>;
-}
-
-impl AppRegistry for AppRegistryImpl {
-    fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository> {
-        self.health_check_repository.clone()
-    }
-}
-
-pub type AppRegistryState = Arc<dyn AppRegistry + Send + Sync + 'static>;
+pub use app::*;
+pub use bootstrap::*;

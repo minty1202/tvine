@@ -9,9 +9,13 @@ lerna-debug.log*
 
 node_modules
 /target
+/tmp
 dist
 dist-ssr
 *.local
+
+# Claude Code
+.claude/settings.local.json
 
 # Editor directories and files
 .vscode/*

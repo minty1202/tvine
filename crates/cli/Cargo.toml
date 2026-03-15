@@ -1,12 +1,14 @@
 [package]
 name = "cli"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
 api.workspace = true
+data.workspace = true
 registry.workspace = true
 shared.workspace = true
+client.workspace = true
 
 anyhow.workspace = true
 clap.workspace = true

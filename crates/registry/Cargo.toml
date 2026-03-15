@@ -1,10 +1,12 @@
 [package]
 name = "registry"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
 adapter.workspace = true
 kernel.workspace = true
+data.workspace = true
+client.workspace = true
 
 mockall.workspace = true

@@ -1,8 +1,6 @@
 [package]
-name = "kernel"
+name = "exec"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
-mockall.workspace = true
-async-trait.workspace = true

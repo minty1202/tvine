@@ -17,7 +17,7 @@ test:
 	pnpm test
 	cargo test
 
-BACKEND_CRATES = -p kernel -p adapter -p registry -p api -p cli -p shared -p data
+BACKEND_CRATES = --workspace --exclude tvine
 
 frontend-ci:
 	pnpm run lint
@@ -25,7 +25,7 @@ frontend-ci:
 	pnpm run build
 
 backend-ci:
-	cargo fmt --check $(BACKEND_CRATES)
+	cargo fmt --all --check
 	cargo clippy $(BACKEND_CRATES) -- -D warnings
 	cargo check $(BACKEND_CRATES)
 	cargo test $(BACKEND_CRATES)

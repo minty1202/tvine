@@ -1,10 +1,16 @@
 [package]
 name = "adapter"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
 kernel.workspace = true
+exec.workspace = true
+data.workspace = true
+client.workspace = true
 
 async-trait.workspace = true
 derive-new.workspace = true
+
+[dev-dependencies]
+shared.workspace = true

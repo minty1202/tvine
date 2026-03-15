@@ -9,7 +9,13 @@ members = [
   "crates/registry",
   "crates/shared",
   "crates/cli",
+  "crates/exec",
+  "crates/client",
 ]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
 
 [workspace.dependencies]
 # 内部クレート
@@ -19,6 +25,8 @@ data = { path = "./crates/data"}
 kernel = { path = "./crates/kernel"}
 registry = { path = "./crates/registry" }
 shared = { path = "./crates/shared" }
+exec = { path = "./crates/exec" }
+client = { path = "./crates/client" }
 
 # 外部依存
 tokio = { version = "1.49.0", features = ["rt-multi-thread", "macros"] }
@@ -32,3 +40,5 @@ async-trait = "0.1.89"
 derive-new = "0.7"
 anyhow = "1.0"
 thiserror = "2"
+dirs = "6.0.0"
+git2 = "0.20"
