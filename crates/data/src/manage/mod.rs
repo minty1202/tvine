@@ -1,3 +1,5 @@
+pub mod project;
+
 use crate::AppContext;
 use std::io;
 
