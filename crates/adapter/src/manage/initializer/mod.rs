@@ -1,12 +1,12 @@
 use data::manage::ensure_root_dir;
-use data::DataContext;
+use data::AppContext;
 use kernel::manage::initializer::Initializer;
 
 use derive_new::new;
 
 #[derive(new)]
 pub struct InitializerImpl {
-    data: DataContext,
+    data: AppContext,
 }
 
 impl Initializer for InitializerImpl {
@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn ensure_root_dir_creates_tvine_directory() {
         let test_dir = setup();
-        let ctx = DataContext::new(test_dir.clone());
+        let ctx = AppContext::new(test_dir.clone());
         let initializer = InitializerImpl::new(ctx);
 
         let result = initializer.ensure_root_dir();

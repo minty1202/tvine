@@ -4,7 +4,7 @@ use std::process;
 use clap::{Parser, Subcommand};
 
 use api::{handler, operator};
-use data::DataContext;
+use data::AppContext;
 use registry::{AppRegistryImpl, BootstrapRegistryImpl};
 use shared::{
     error::{AppError, AppResult},
@@ -66,8 +66,8 @@ async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     let home_dir = utility::home_dir().map_err(|e| AppError::IoError(e.to_string()))?;
-    let data_ctx = DataContext::new(home_dir);
-    let bootstrap = BootstrapRegistryImpl::new(data_ctx);
+    let app_ctx = AppContext::new(home_dir);
+    let bootstrap = BootstrapRegistryImpl::new(app_ctx);
     handle_error(operator::prerequisite_check(&bootstrap));
     handle_error(operator::initialize(&bootstrap));
 

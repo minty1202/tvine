@@ -1,5 +1,5 @@
 use adapter::manage::{initializer::InitializerImpl, prerequisite::PrerequisiteImpl};
-use data::DataContext;
+use data::AppContext;
 use kernel::manage::{initializer::Initializer, prerequisite::Prerequisite};
 
 pub struct BootstrapRegistryImpl {
@@ -8,7 +8,7 @@ pub struct BootstrapRegistryImpl {
 }
 
 impl BootstrapRegistryImpl {
-    pub fn new(data: DataContext) -> Self {
+    pub fn new(data: AppContext) -> Self {
         let initializer = Box::new(InitializerImpl::new(data));
         let prerequisite = Box::new(PrerequisiteImpl);
 
