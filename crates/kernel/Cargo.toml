@@ -6,3 +6,5 @@ edition.workspace = true
 [dependencies]
 mockall.workspace = true
 async-trait.workspace = true
+serde.workspace = true
+shared.workspace = true

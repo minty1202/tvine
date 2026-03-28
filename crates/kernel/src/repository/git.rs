@@ -1,4 +1,5 @@
-use std::path::PathBuf;
+use shared::error::AppResult;
+use std::path::{Path, PathBuf};
 
 /// Git リポジトリの情報を取得する。
 /// プロジェクトルートの取得など、git リポジトリに関する問い合わせを担う。
@@ -6,4 +7,6 @@ use std::path::PathBuf;
 pub trait GitRepository: Send + Sync {
     fn project_root(&self) -> PathBuf;
     fn default_branch(&self) -> String;
+    fn create_worktree(&self, base_branch: &str, branch_name: &str, path: &Path) -> AppResult<()>;
+    fn remove_worktree(&self, path: &Path) -> AppResult<()>;
 }
