@@ -1,9 +1,7 @@
 import { Text } from '@mantine/core';
-import { IconFileDiff, IconTerminal2 } from '@tabler/icons-react';
-import { CollapsiblePanel } from '@/components/panel/CollapsiblePanel';
 import { Panel } from '@/components/panel/Panel';
-
-const ICON_SIZE = 16;
+import { DiffPanelToggle } from '@/features/diff/components/DiffPanel';
+import { ShellPanelToggle } from '@/features/shell/components/ShellPanel';
 
 interface TerminalHeaderProps {
   sessionId: string | null;
@@ -12,15 +10,8 @@ interface TerminalHeaderProps {
 export function TerminalHeader({ sessionId }: TerminalHeaderProps) {
   return (
     <Panel.Header gap={10} bg="dark.8">
-      <CollapsiblePanel.Toggle
-        panelKey="changes"
-        icon={<IconFileDiff size={ICON_SIZE} />}
-        defaultOpened
-      />
-      <CollapsiblePanel.Toggle
-        panelKey="terminal"
-        icon={<IconTerminal2 size={ICON_SIZE} />}
-      />
+      <DiffPanelToggle />
+      <ShellPanelToggle />
       {sessionId && (
         <Text size="xs" c="dimmed">
           {sessionId}
