@@ -26,10 +26,9 @@ impl PtyRepository for PtyRepositoryImpl {
         worktree_path: &Path,
         cols: u16,
         rows: u16,
-        resume: bool,
     ) -> AppResult<Box<dyn Read + Send>> {
         self.manager
-            .spawn(session_id, worktree_path, cols, rows, resume)
+            .spawn(session_id, worktree_path, cols, rows)
             .map_err(|e| AppError::PtyError(e.to_string()))
     }
 

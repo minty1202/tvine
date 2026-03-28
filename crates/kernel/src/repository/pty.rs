@@ -11,7 +11,6 @@ pub trait PtyRepository: Send {
         worktree_path: &Path,
         cols: u16,
         rows: u16,
-        resume: bool,
     ) -> AppResult<Box<dyn Read + Send>>;
     fn write(&mut self, session_id: &str, data: &[u8]) -> AppResult<()>;
     fn resize(&self, session_id: &str, cols: u16, rows: u16) -> AppResult<()>;

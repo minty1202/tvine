@@ -7,7 +7,7 @@ interface TerminalContentProps {
 }
 
 export function TerminalContent({ sessionId }: TerminalContentProps) {
-  const { isExited, restart } = useSessionTerminal();
+  const { isExited, create } = useSessionTerminal();
 
   if (!sessionId) {
     return (
@@ -31,7 +31,7 @@ export function TerminalContent({ sessionId }: TerminalContentProps) {
         <Text size="sm" c="dimmed">
           セッションが終了しました
         </Text>
-        <Button variant="light" size="sm" onClick={() => restart(sessionId)}>
+        <Button variant="light" size="sm" onClick={() => create(sessionId)}>
           再開
         </Button>
       </Stack>

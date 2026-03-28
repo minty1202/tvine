@@ -31,9 +31,8 @@ impl PtyManager {
         worktree_path: &Path,
         cols: u16,
         rows: u16,
-        resume: bool,
     ) -> PtyResult<Box<dyn Read + Send>> {
-        let (process, reader) = PtyProcess::spawn(session_id, worktree_path, cols, rows, resume)?;
+        let (process, reader) = PtyProcess::spawn(session_id, worktree_path, cols, rows)?;
         self.processes.insert(session_id.to_string(), process);
         Ok(reader)
     }

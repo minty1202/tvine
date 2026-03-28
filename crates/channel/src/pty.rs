@@ -15,7 +15,7 @@ pub fn spawn(
     rows: u16,
 ) -> AppResult<Box<dyn Read + Send>> {
     let session_id_obj = kernel::model::session::SessionId::new(session_id.to_string());
-    let mut session = registry
+    let session = registry
         .session_repository()
         .get(&session_id_obj)?
         .ok_or_else(|| AppError::NotFound(format!("Session not found: {session_id}")))?;
@@ -23,13 +23,7 @@ pub fn spawn(
     let pty = registry.pty_repository();
     let mut manager = pty.lock().unwrap();
 
-    // --session-id を先に試し、失敗したら --resume にフォールバック
-    // Claude Code は会話が発生するまでセッションを保存しないため、
-    // 会話なしで終了した場合は --session-id が成功する
-    let reader = match manager.spawn(session_id, &session.worktree_path, cols, rows, false) {
-        Ok(reader) => reader,
-        Err(_) => manager.spawn(session_id, &session.worktree_path, cols, rows, true)?,
-    };
+    let reader = manager.spawn(session_id, &session.worktree_path, cols, rows)?;
 
     Ok(reader)
 }
@@ -96,49 +90,17 @@ mod tests {
     }
 
     #[test]
-    fn spawn_tries_session_id_first() {
+    fn spawn_succeeds_with_valid_session() {
         let mut session_mock = MockSessionRepository::new();
         session_mock
             .expect_get()
             .returning(|id| Ok(Some(make_session(id.as_str()))));
 
         let mut pty_mock = MockPtyRepository::new();
-        pty_mock
-            .expect_spawn()
-            .withf(|_, _, _, _, resume| !resume)
-            .returning(|_, _, _, _, _| {
-                let reader: Box<dyn Read + Send> = Box::new(std::io::empty());
-                Ok(reader)
-            });
-
-        let registry = setup_registry(session_mock, pty_mock);
-        let result = spawn(&registry, "test-session", 80, 24);
-        assert!(result.is_ok());
-    }
-
-    #[test]
-    fn spawn_falls_back_to_resume_on_failure() {
-        let mut session_mock = MockSessionRepository::new();
-        session_mock
-            .expect_get()
-            .returning(|id| Ok(Some(make_session(id.as_str()))));
-
-        let mut pty_mock = MockPtyRepository::new();
-        let mut call_count = 0;
-        pty_mock
-            .expect_spawn()
-            .times(2)
-            .returning(move |_, _, _, _, resume| {
-                call_count += 1;
-                if call_count == 1 {
-                    assert!(!resume);
-                    Err(AppError::PtyError("already in use".to_string()))
-                } else {
-                    assert!(resume);
-                    let reader: Box<dyn Read + Send> = Box::new(std::io::empty());
-                    Ok(reader)
-                }
-            });
+        pty_mock.expect_spawn().returning(|_, _, _, _| {
+            let reader: Box<dyn Read + Send> = Box::new(std::io::empty());
+            Ok(reader)
+        });
 
         let registry = setup_registry(session_mock, pty_mock);
         let result = spawn(&registry, "test-session", 80, 24);

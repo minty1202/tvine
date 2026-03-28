@@ -15,7 +15,6 @@ impl PtyProcess {
         worktree_path: &Path,
         cols: u16,
         rows: u16,
-        resume: bool,
     ) -> PtyResult<(Self, Box<dyn Read + Send>)> {
         let pty_system = native_pty_system();
         let pair = pty_system
@@ -27,27 +26,21 @@ impl PtyProcess {
             })
             .map_err(|e| PtyError::SpawnFailed(e.to_string()))?;
 
-        let mut cmd = CommandBuilder::new("claude");
-        if resume {
-            cmd.args(["--resume", session_id]);
-        } else {
-            cmd.args(["--session-id", session_id]);
-        }
+        let mut cmd = CommandBuilder::new("sh");
+        cmd.args([
+            "-c",
+            &format!(
+                "claude --session-id {0} 2>/dev/null || claude --resume {0}",
+                session_id
+            ),
+        ]);
         cmd.cwd(worktree_path);
 
-        let mut child = pair
+        let child = pair
             .slave
             .spawn_command(cmd)
             .map_err(|e| PtyError::SpawnFailed(e.to_string()))?;
         drop(pair.slave);
-
-        // プロセスが即座に終了していないか確認
-        std::thread::sleep(std::time::Duration::from_millis(500));
-        if let Ok(Some(_)) = child.try_wait() {
-            return Err(PtyError::SpawnFailed(
-                "Process exited immediately".to_string(),
-            ));
-        }
 
         let reader = pair
             .master
