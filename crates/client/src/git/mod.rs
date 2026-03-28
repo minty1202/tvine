@@ -2,7 +2,7 @@ pub mod error;
 
 use error::{Error as GitError, GitResult};
 use git2::Repository;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
 pub struct ClientImpl {
@@ -14,6 +14,8 @@ pub trait Client {
     // セマンティクス上は &Path が適切だが、mockall が参照の返却を扱いにくいため PathBuf にしている。
     fn project_root(&self) -> PathBuf;
     fn default_branch(&self) -> String;
+    fn create_worktree(&self, base_branch: &str, branch_name: &str, path: &Path) -> GitResult<()>;
+    fn remove_worktree(&self, path: &Path) -> GitResult<()>;
 }
 
 impl ClientImpl {
@@ -52,5 +54,40 @@ impl Client for ClientImpl {
                     .to_string()
             })
             .unwrap_or_else(|| "main".to_string())
+    }
+
+    fn create_worktree(&self, base_branch: &str, branch_name: &str, path: &Path) -> GitResult<()> {
+        let output = std::process::Command::new("git")
+            .args([
+                "worktree",
+                "add",
+                "-b",
+                branch_name,
+                &path.to_string_lossy(),
+                base_branch,
+            ])
+            .output()
+            .map_err(|e| GitError::CommandFailed(e.to_string()))?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            return Err(GitError::CommandFailed(stderr));
+        }
+
+        Ok(())
+    }
+
+    fn remove_worktree(&self, path: &Path) -> GitResult<()> {
+        let output = std::process::Command::new("git")
+            .args(["worktree", "remove", "--force", &path.to_string_lossy()])
+            .output()
+            .map_err(|e| GitError::CommandFailed(e.to_string()))?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            return Err(GitError::CommandFailed(stderr));
+        }
+
+        Ok(())
     }
 }

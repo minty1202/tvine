@@ -5,6 +5,9 @@ use thiserror::Error;
 pub enum Error {
     #[error("Git リポジトリが見つかりませんでした")]
     NotARepository,
+
+    #[error("Git コマンドが失敗しました: {0}")]
+    CommandFailed(String),
 }
 
 pub type GitResult<T> = Result<T, Error>;
