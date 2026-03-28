@@ -15,3 +15,4 @@
 
 - ~~health check で `~/.tvine/` ディレクトリの存在確認をする~~ → #9
 - ~~エラー型の設計を決める（thiserror で AppError を shared に定義、AppResult 型エイリアス等）~~ → #8
+- ~~exec クレートのリネーム~~ → #27

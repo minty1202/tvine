@@ -1,18 +1,12 @@
 [package]
-name = "adapter"
+name = "channel"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
 kernel.workspace = true
-exec.workspace = true
-data.workspace = true
-client.workspace = true
-pty.workspace = true
+registry.workspace = true
 shared.workspace = true
-
-async-trait.workspace = true
-derive-new.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true

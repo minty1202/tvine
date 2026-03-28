@@ -11,6 +11,8 @@ members = [
   "crates/cli",
   "crates/exec",
   "crates/client",
+  "crates/pty",
+  "crates/channel",
 ]
 
 [workspace.package]
@@ -27,6 +29,8 @@ registry = { path = "./crates/registry" }
 shared = { path = "./crates/shared" }
 exec = { path = "./crates/exec" }
 client = { path = "./crates/client" }
+pty = { path = "./crates/pty" }
+channel = { path = "./crates/channel" }
 
 # 外部依存
 tokio = { version = "1.49.0", features = ["rt-multi-thread", "macros"] }

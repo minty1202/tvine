@@ -8,6 +8,15 @@ import type { CreateSessionValues } from '@/features/sessions/utils/createSessio
 import type { Session } from '@/generated/Session';
 import { CreateSessionModal } from './CreateSessionModal';
 
+vi.mock('@/hooks/useSessionTerminal', () => ({
+  useSessionTerminal: () => ({
+    create: vi.fn(),
+    get: vi.fn(),
+    remove: vi.fn(),
+    isExited: vi.fn(),
+  }),
+}));
+
 type SessionMutation = UseMutationResult<Session, unknown, CreateSessionValues>;
 
 function baseMutation(): SessionMutation {
@@ -116,8 +125,15 @@ describe('CreateSessionModal', () => {
 
   it('成功時の onSuccess コールバックでモーダルが閉じる', async () => {
     const user = userEvent.setup();
+    const fakeSession: Session = {
+      id: 'test-uuid',
+      branch_name: 'feature/test',
+      base_branch: 'main',
+      worktree_path: '/tmp/test',
+      created_at: '2026-01-01T00:00:00Z',
+    };
     (mutation.mutate as Mock).mockImplementation((_values, options) => {
-      options?.onSuccess?.();
+      options?.onSuccess?.(fakeSession);
     });
     renderModal(mutation);
 
