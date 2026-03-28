@@ -7,6 +7,13 @@ export const theme = createTheme({
   defaultRadius: 'sm',
   fontFamily: "'Hiragino Sans', sans-serif",
   fontFamilyMonospace: FONT_MONO,
+  components: {
+    Button: {
+      defaultProps: {
+        variant: 'light',
+      },
+    },
+  },
   colors: {
     dark: [
       '#c8cee0', // 0: bright text

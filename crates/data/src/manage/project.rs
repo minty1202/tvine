@@ -5,9 +5,10 @@ use std::io;
 #[derive(Serialize)]
 struct ProjectConfig {
     root: String,
+    default_branch: String,
 }
 
-pub fn ensure_project_dir(ctx: &ProjectContext) -> io::Result<()> {
+pub fn ensure_project_dir(ctx: &ProjectContext, default_branch: &str) -> io::Result<()> {
     let storage_dir = ctx.storage_dir();
 
     let config_path = storage_dir.join(PROJECT_CONFIG_FILE);
@@ -20,6 +21,7 @@ pub fn ensure_project_dir(ctx: &ProjectContext) -> io::Result<()> {
 
     let config = ProjectConfig {
         root: ctx.repository_root().to_string_lossy().into_owned(),
+        default_branch: default_branch.to_string(),
     };
     let json = serde_json::to_string_pretty(&config).map_err(io::Error::other)?;
     std::fs::write(config_path, json)?;
@@ -53,7 +55,7 @@ mod tests {
         let id = ProjectId::from(repo_root.as_path());
         let ctx = ProjectContext::new(app, id, repo_root);
 
-        let result = ensure_project_dir(&ctx);
+        let result = ensure_project_dir(&ctx, "main");
         assert!(result.is_ok());
 
         let storage_dir = ctx.storage_dir();
@@ -65,6 +67,7 @@ mod tests {
         )
         .unwrap();
         assert_eq!(config["root"], "/Users/aki/dev/test");
+        assert_eq!(config["default_branch"], "main");
 
         cleanup(&test_dir);
     }
@@ -78,8 +81,8 @@ mod tests {
         let id = ProjectId::from(repo_root.as_path());
         let ctx = ProjectContext::new(app, id, repo_root);
 
-        ensure_project_dir(&ctx).unwrap();
-        let result = ensure_project_dir(&ctx);
+        ensure_project_dir(&ctx, "main").unwrap();
+        let result = ensure_project_dir(&ctx, "main");
         assert!(result.is_ok());
 
         cleanup(&test_dir);

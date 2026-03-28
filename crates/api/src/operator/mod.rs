@@ -27,8 +27,8 @@ pub fn teardown(registry: &dyn BootstrapRegistry) -> AppResult<()> {
         .map_err(|e| AppError::IoError(e.to_string()))
 }
 
-pub fn initialize_project(ctx: &ProjectContext) -> AppResult<()> {
-    ensure_project_dir(ctx).map_err(|e| AppError::IoError(e.to_string()))
+pub fn initialize_project(ctx: &ProjectContext, default_branch: &str) -> AppResult<()> {
+    ensure_project_dir(ctx, default_branch).map_err(|e| AppError::IoError(e.to_string()))
 }
 
 #[cfg(test)]
@@ -172,7 +172,7 @@ mod tests {
         let id = ProjectId::from(repo_root.as_path());
         let ctx = ProjectContext::new(app, id, repo_root);
 
-        let result = initialize_project(&ctx);
+        let result = initialize_project(&ctx, "main");
         assert!(result.is_ok());
         assert!(ctx.storage_dir().join("project.json").exists());
 
@@ -189,7 +189,7 @@ mod tests {
         let id = ProjectId::from(repo_root.as_path());
         let ctx = ProjectContext::new(app, id, repo_root);
 
-        let result = initialize_project(&ctx);
+        let result = initialize_project(&ctx, "main");
         assert!(result.is_err());
         assert!(matches!(result.unwrap_err(), AppError::IoError(_)));
     }
