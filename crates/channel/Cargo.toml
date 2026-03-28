@@ -1,0 +1,9 @@
+[package]
+name = "channel"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+kernel.workspace = true
+registry.workspace = true
+shared.workspace = true
