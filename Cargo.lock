@@ -522,6 +522,7 @@ dependencies = [
  "kernel",
  "registry",
  "shared",
+ "tempfile",
 ]
 
 [[package]]
