@@ -84,9 +84,10 @@ async fn main() -> anyhow::Result<()> {
             let git_client =
                 Box::new(GitClient::new().map_err(|e| AppError::GitError(e.to_string()))?);
             let repository_root = git_client.project_root();
+            let default_branch = git_client.default_branch();
             let project_id = ProjectId::from(repository_root.as_path());
             let project_ctx = ProjectContext::new(app_context, project_id, repository_root);
-            handle_error(operator::initialize_project(&project_ctx));
+            handle_error(operator::initialize_project(&project_ctx, &default_branch));
 
             let registry = AppRegistryImpl::new(git_client, project_ctx);
 

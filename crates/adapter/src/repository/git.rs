@@ -12,6 +12,10 @@ impl GitRepository for GitRepositoryImpl {
     fn project_root(&self) -> PathBuf {
         self.git.project_root()
     }
+
+    fn default_branch(&self) -> String {
+        self.git.default_branch()
+    }
 }
 
 #[cfg(test)]
@@ -29,5 +33,15 @@ mod tests {
         let result = repo.project_root();
 
         assert_eq!(result, PathBuf::from("/home/user/dev/myapp"));
+    }
+
+    #[test]
+    fn default_branch_delegates_to_git_client() {
+        let mut mock = MockClient::new();
+        mock.expect_default_branch()
+            .returning(|| "develop".to_string());
+
+        let repo = GitRepositoryImpl::new(Box::new(mock));
+        assert_eq!(repo.default_branch(), "develop");
     }
 }

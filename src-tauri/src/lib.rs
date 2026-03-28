@@ -18,10 +18,11 @@ fn setup(_app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let app_context = Arc::new(AppContext::new(home_dir));
     let git_client = GitClient::new()?;
     let repository_root = git_client.project_root();
+    let default_branch = git_client.default_branch();
     let project_id = ProjectId::from(repository_root.as_path());
     let project_ctx = ProjectContext::new(app_context, project_id, repository_root);
 
-    operator::initialize_project(&project_ctx)?;
+    operator::initialize_project(&project_ctx, &default_branch)?;
 
     Ok(())
 }
