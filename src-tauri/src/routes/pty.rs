@@ -27,16 +27,14 @@ pub fn spawn_pty(
     state: tauri::State<'_, AppRegistryState>,
     handle_state: tauri::State<'_, AppHandleState>,
 ) -> Result<(), String> {
-    if channel::pty::has(&**state, &session_id) {
-        return Ok(());
-    }
-
     let reader =
         channel::pty::spawn(&**state, &session_id, cols, rows).map_err(|e| e.to_string())?;
 
-    let app_handle = (**handle_state).clone();
-    let registry = Arc::clone(&*state);
-    start_read_loop(reader, session_id, app_handle, registry);
+    if let Some(reader) = reader {
+        let app_handle = (**handle_state).clone();
+        let registry = Arc::clone(&*state);
+        start_read_loop(reader, session_id, app_handle, registry);
+    }
 
     Ok(())
 }

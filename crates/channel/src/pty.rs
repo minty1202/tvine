@@ -2,30 +2,28 @@ use registry::app::AppRegistry;
 use shared::error::{AppError, AppResult};
 use std::io::Read;
 
-pub fn has(registry: &dyn AppRegistry, session_id: &str) -> bool {
-    let pty = registry.pty_repository();
-    let manager = pty.lock().unwrap();
-    manager.has(session_id)
-}
-
 pub fn spawn(
     registry: &dyn AppRegistry,
     session_id: &str,
     cols: u16,
     rows: u16,
-) -> AppResult<Box<dyn Read + Send>> {
+) -> AppResult<Option<Box<dyn Read + Send>>> {
+    let pty = registry.pty_repository();
+    let mut manager = pty.lock().unwrap();
+
+    if manager.has(session_id) {
+        return Ok(None);
+    }
+
     let session_id_obj = kernel::model::session::SessionId::new(session_id.to_string());
     let session = registry
         .session_repository()
         .get(&session_id_obj)?
         .ok_or_else(|| AppError::NotFound(format!("Session not found: {session_id}")))?;
 
-    let pty = registry.pty_repository();
-    let mut manager = pty.lock().unwrap();
-
     let reader = manager.spawn(session_id, &session.worktree_path, cols, rows)?;
 
-    Ok(reader)
+    Ok(Some(reader))
 }
 
 pub fn write(registry: &dyn AppRegistry, session_id: &str, data: &[u8]) -> AppResult<()> {
@@ -97,6 +95,7 @@ mod tests {
             .returning(|id| Ok(Some(make_session(id.as_str()))));
 
         let mut pty_mock = MockPtyRepository::new();
+        pty_mock.expect_has().returning(|_| false);
         pty_mock.expect_spawn().returning(|_, _, _, _| {
             let reader: Box<dyn Read + Send> = Box::new(std::io::empty());
             Ok(reader)
@@ -104,7 +103,19 @@ mod tests {
 
         let registry = setup_registry(session_mock, pty_mock);
         let result = spawn(&registry, "test-session", 80, 24);
-        assert!(result.is_ok());
+        assert!(result.unwrap().is_some());
+    }
+
+    #[test]
+    fn spawn_skips_when_already_running() {
+        let session_mock = MockSessionRepository::new();
+
+        let mut pty_mock = MockPtyRepository::new();
+        pty_mock.expect_has().returning(|_| true);
+
+        let registry = setup_registry(session_mock, pty_mock);
+        let result = spawn(&registry, "test-session", 80, 24);
+        assert!(result.unwrap().is_none());
     }
 
     #[test]
@@ -112,24 +123,12 @@ mod tests {
         let mut session_mock = MockSessionRepository::new();
         session_mock.expect_get().returning(|_| Ok(None));
 
-        let pty_mock = MockPtyRepository::new();
+        let mut pty_mock = MockPtyRepository::new();
+        pty_mock.expect_has().returning(|_| false);
 
         let registry = setup_registry(session_mock, pty_mock);
         let result = spawn(&registry, "nonexistent", 80, 24);
         assert!(result.is_err());
-    }
-
-    #[test]
-    fn has_delegates_to_pty_repository() {
-        let session_mock = MockSessionRepository::new();
-        let mut pty_mock = MockPtyRepository::new();
-        pty_mock
-            .expect_has()
-            .withf(|id| id == "test-session")
-            .returning(|_| true);
-
-        let registry = setup_registry(session_mock, pty_mock);
-        assert!(has(&registry, "test-session"));
     }
 
     #[test]

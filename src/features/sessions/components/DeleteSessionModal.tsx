@@ -4,7 +4,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useAtom } from 'jotai';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { useDeleteSession } from '@/features/sessions/hooks/useDeleteSession';
-import { useSessionTerminal } from '@/features/terminal/hooks/useSessionTerminal';
+import { useSessionTerminal } from '@/hooks/useSessionTerminal';
 import { selectedSessionIdAtom } from '@/stores/sessionStore';
 
 interface DeleteSessionModalProps {

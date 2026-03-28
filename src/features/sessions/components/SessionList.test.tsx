@@ -11,7 +11,7 @@ import { SessionList } from './SessionList';
 
 const mockCreate = vi.fn();
 
-vi.mock('@/features/terminal/hooks/useSessionTerminal', () => ({
+vi.mock('@/hooks/useSessionTerminal', () => ({
   useSessionTerminal: () => ({
     create: mockCreate,
     get: vi.fn(),

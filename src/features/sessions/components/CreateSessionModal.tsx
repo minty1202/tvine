@@ -8,8 +8,8 @@ import {
   type CreateSessionValues,
   createSessionSchema,
 } from '@/features/sessions/utils/createSessionSchema';
-import { useSessionTerminal } from '@/features/terminal/hooks/useSessionTerminal';
 import type { Session } from '@/generated/Session';
+import { useSessionTerminal } from '@/hooks/useSessionTerminal';
 import { selectedSessionIdAtom } from '@/stores/sessionStore';
 
 interface CreateSessionModalProps {

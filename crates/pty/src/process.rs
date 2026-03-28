@@ -92,3 +92,9 @@ impl PtyProcess {
         Ok(())
     }
 }
+
+impl Drop for PtyProcess {
+    fn drop(&mut self) {
+        let _ = self.child.wait();
+    }
+}

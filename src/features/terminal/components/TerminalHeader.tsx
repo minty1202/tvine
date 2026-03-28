@@ -1,17 +1,19 @@
 import { Text } from '@mantine/core';
+import type { ReactNode } from 'react';
 import { Panel } from '@/components/panel/Panel';
-import { DiffPanelToggle } from '@/features/diff/components/DiffPanel';
-import { ShellPanelToggle } from '@/features/shell/components/ShellPanel';
 
 interface TerminalHeaderProps {
   sessionId: string | null;
+  panelToggles?: ReactNode;
 }
 
-export function TerminalHeader({ sessionId }: TerminalHeaderProps) {
+export function TerminalHeader({
+  sessionId,
+  panelToggles,
+}: TerminalHeaderProps) {
   return (
     <Panel.Header gap={10} bg="dark.8">
-      <DiffPanelToggle />
-      <ShellPanelToggle />
+      {panelToggles}
       {sessionId && (
         <Text size="xs" c="dimmed">
           {sessionId}
