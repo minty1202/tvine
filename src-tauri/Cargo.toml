@@ -27,6 +27,7 @@ api.workspace = true
 client.workspace = true
 data.workspace = true
 kernel.workspace = true
+pty.workspace = true
 registry.workspace = true
 shared.workspace = true
 

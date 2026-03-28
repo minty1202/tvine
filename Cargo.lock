@@ -12,6 +12,7 @@ dependencies = [
  "derive-new",
  "exec",
  "kernel",
+ "pty",
  "shared",
  "tempfile",
 ]
@@ -4584,6 +4585,7 @@ dependencies = [
  "client",
  "data",
  "kernel",
+ "pty",
  "registry",
  "serde",
  "serde_json",

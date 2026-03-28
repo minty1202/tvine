@@ -11,7 +11,9 @@
 
 ## チェックリスト
 
-- [ ] [`pty` クレートの作成と PTY プロセス管理](#pty-クレートの作成と-pty-プロセス管理)
+- [ ] [kernel: PTY の trait 定義](#kernel-pty-の-trait-定義)
+- [ ] [pty クレート: trait の実装](#pty-クレート-trait-の実装)
+- [ ] [channel 層の新設](#channel-層の新設)
 - [ ] [Tauri 層: IPC コマンドとイベント](#tauri-層-ipc-コマンドとイベント)
 - [ ] [フロントエンド: xterm.js の表示と入力](#フロントエンド-xtermjs-の表示と入力)
 - [ ] [セッション切り替え](#セッション切り替え)
@@ -19,18 +21,45 @@
 - [ ] [セッション削除時の PTY 終了](#セッション削除時の-pty-終了)
 
 ## 未決
+
 - xterm.js の入力互換性（Shift+Enter 等の特殊キー）は実装時に検証
 - xterm.js の Terminal インスタンスの保持方法（React 外の `Map<SessionId, Terminal>` が候補。re-render との競合、`terminal.dispose()` のタイミング等を実装時に判断する）
 
 ## 方針
 
-### `pty` クレートの作成と PTY プロセス管理
+### アーキテクチャ
 
 #### 方針
 
-- 新規 `pty` クレートを作成する。`client` クレートと同列のインフラ層
+既存の `api` 層はリクエスト/レスポンス型（REST 的）の操作を担当している。PTY は双方向の持続的な通信（WebSocket 的）であり、性質が異なる。そのため `api` と並列に `channel` 層を新設し、双方向通信の処理を担当させる。
+
+```
+リクエスト/レスポンス: routes -> api     -> registry -> adapter -> kernel
+双方向通信:           routes -> channel -> registry -> adapter -> kernel
+```
+
+依存の方向は既存と同じく外から内。kernel の trait は共通で、`api` と `channel` のどちらからも使える。`pty` クレートは `client` と同列のインフラ層で、adapter が kernel trait の実装に使う。
+
+### kernel: PTY の trait 定義
+
+#### 方針
+
+- kernel に PTY 操作の trait を定義する
+- `pty` クレートがこの trait を実装する（`client` クレートが `GitRepository` trait を実装するのと同じ構造）
+
+#### 実装方法
+
+- `kernel/src/service/pty.rs`（または適切なモジュール名）に trait を定義
+- spawn は reader（`Box<dyn Read + Send>`）を返す。reader の扱い（読み取りループ等）は呼び出し側の責務
+- write / resize / kill / has 等の操作を定義
+
+### pty クレート: trait の実装
+
+#### 方針
+
+- `client` クレートと同列のインフラ層
 - PTY ライブラリは `portable-pty`（Wez Furlong 作。クロスプラットフォーム対応、wezterm で実績あり）
-- Tauri には依存しない。PTY の操作（起動・読み書き・リサイズ）に専念する
+- Tauri には依存しない。PTY の操作に専念する
 
 #### 実装方法
 
@@ -47,15 +76,28 @@
 - 判断基準: session.json に `claude_launched: bool` フラグを持たせる。`false`（未起動）なら `--session-id`、`true`（起動済み）なら `--resume`。初回起動成功時に `true` に更新する
 - 作業ディレクトリ: `session.worktree_path`
 - writer（入力書き込み）とリサイズ用のハンドルを保持
-- reader は spawn 時に呼び出し元に返し、別スレッドで読み取りループを回す（PtyManager 側の Mutex ロック時間を最小化するため）
+- reader は spawn 時に呼び出し元に返す
 
 ##### PtyManager
 
+- kernel の trait を実装する
 - `HashMap<SessionId, PtyProcess>` でセッションごとのプロセスを管理
-- `Arc<std::sync::Mutex<>>` で Tauri state として共有（既存パターンに合わせて同期 Mutex。ロック内でブロッキング I/O はしない）
-- spawn メソッド内で reader を取得し、`std::thread::spawn` で読み取りループを起動する。ループ内から `app_handle.emit()` で出力を送信（`AppHandle` は `Send + Sync` なのでスレッド間で安全に使える）
-- セッション選択時に PTY がなければ起動、あればスキップ
-- 操作: 起動 / 書き込み / リサイズ / 削除
+- 操作: spawn / write / resize / kill / has
+
+### channel 層の新設
+
+#### 方針
+
+- `api` と並列に `channel` クレート（または `api` 内のモジュール）を新設する
+- Web でいう WebSocket ハンドラーに相当する層
+- PTY の spawn 時に reader を受け取り、読み取りループを起動する等のオーケストレーションを担当する
+- registry 経由で kernel trait にアクセスする
+
+#### 実装方法
+
+- `channel` は registry を受け取り、kernel trait 経由で PTY を操作する
+- spawn 時に返る reader を使って読み取りスレッドを起動する処理を担当
+- routes から channel を呼ぶ形にする
 
 ### Tauri 層: IPC コマンドとイベント
 
@@ -63,6 +105,7 @@
 
 - 既存の routes パターン（`src-tauri/src/routes/`）に合わせる
 - PTY の出力は Tauri Event で push、入力は invoke で受ける
+- routes は channel 層に委譲する
 
 #### 実装方法
 
@@ -82,7 +125,9 @@
 | `pty-exit` | `{ session_id }` | プロセス終了通知 |
 
 - 全セッションの出力を単一イベントに流す（セッション数は数個〜十数個の想定で問題ない）
-- `PtyManager` を `app.manage()` で登録。`spawn_pty` 時に `app_handle` を渡して、読み取りスレッドから `emit` できるようにする
+- `PtyManager` を `Arc<std::sync::Mutex<>>` で Tauri state として共有
+- spawn 時に `app_handle` を渡して、読み取りスレッドから `emit` できるようにする
+- 読み取りスレッドは `std::thread::spawn` で起動。`AppHandle` は `Send + Sync` なのでスレッド間で安全に使える
 
 ### フロントエンド: xterm.js の表示と入力
 
@@ -135,14 +180,16 @@
 
 #### 実装方法
 
-- 既存の `delete_session` ハンドラー（`api::handler`）は PtyManager を知らないため、routes 層で PTY 終了 → delete_session の順に呼ぶ。既存の「routes → api handler に委譲」パターンとは異なるが、PtyManager は Tauri state であり api 層に持ち込むべきでないため、この構成が妥当
-- PtyManager からプロセスを終了・除去した後、既存の `delete_session` ハンドラーで worktree・session.json を削除する
+- routes 層で channel（PTY 終了）-> api handler（delete_session）の順に呼ぶ
+- api handler は PTY を知らないままで良い
 
 ## 実装順
 
-1. `pty` クレート（PtyProcess + PtyManager）
-2. Tauri IPC（routes + イベント）
-3. フロントエンド（xterm.js 表示 + 入力）
-4. セッション切り替え
-5. 終了検知と再開
-6. セッション削除時の PTY 終了
+1. kernel: PTY の trait 定義
+2. pty クレート: trait の実装
+3. channel 層の新設
+4. Tauri IPC（routes + イベント）
+5. フロントエンド（xterm.js 表示 + 入力）
+6. セッション切り替え
+7. 終了検知と再開
+8. セッション削除時の PTY 終了
