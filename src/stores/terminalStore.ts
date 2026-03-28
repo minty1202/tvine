@@ -10,6 +10,7 @@ type TerminalEntry = {
 };
 
 const terminalsAtom = atom<Map<string, TerminalEntry>>(new Map());
+const exitedSessionsAtom = atom(new Set<string>());
 
-export { terminalsAtom };
+export { exitedSessionsAtom, terminalsAtom };
 export type { TerminalEntry };
