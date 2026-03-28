@@ -29,6 +29,9 @@ fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
 
     let app_registry: AppRegistryState =
         Arc::new(AppRegistryImpl::new(Box::new(git_client), project_ctx));
+
+    operator::reconcile_sessions(app_registry.as_ref())?;
+
     app.manage(app_registry);
 
     Ok(())

@@ -1,6 +1,6 @@
-use data::manage::session::save_session;
+use data::manage::session::{delete_session, list_sessions, save_session};
 use data::ProjectContext;
-use kernel::model::session::Session;
+use kernel::model::session::{Session, SessionId};
 use kernel::repository::session::SessionRepository;
 use shared::error::{AppError, AppResult};
 
@@ -18,6 +18,15 @@ impl SessionRepository for SessionRepositoryImpl {
     fn create(&self, session: &Session) -> AppResult<()> {
         save_session(&self.project_context, session).map_err(|e| AppError::IoError(e.to_string()))
     }
+
+    fn list(&self) -> AppResult<Vec<Session>> {
+        list_sessions(&self.project_context).map_err(|e| AppError::IoError(e.to_string()))
+    }
+
+    fn delete(&self, id: &SessionId) -> AppResult<()> {
+        delete_session(&self.project_context, id.as_str())
+            .map_err(|e| AppError::IoError(e.to_string()))
+    }
 }
 
 #[cfg(test)]
@@ -29,9 +38,7 @@ mod tests {
     use std::sync::Arc;
 
     fn setup() -> PathBuf {
-        let test_dir = shared::utility::test_dir().unwrap();
-        let _ = std::fs::remove_dir_all(&test_dir);
-        test_dir
+        shared::utility::test_dir().unwrap()
     }
 
     fn cleanup(test_dir: &std::path::Path) {
