@@ -1,8 +1,11 @@
 import { ActionIcon, Alert, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconTrash } from '@tabler/icons-react';
+import { useAtom } from 'jotai';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { useDeleteSession } from '@/features/sessions/hooks/useDeleteSession';
+import { useSessionTerminal } from '@/features/terminal/hooks/useSessionTerminal';
+import { selectedSessionIdAtom } from '@/stores/sessionStore';
 
 interface DeleteSessionModalProps {
   sessionId: string;
@@ -15,6 +18,8 @@ export function DeleteSessionModal({
 }: DeleteSessionModalProps) {
   const [opened, { open, close }] = useDisclosure(false);
   const mutation = useDeleteSession();
+  const { remove } = useSessionTerminal();
+  const [selectedId, setSelectedId] = useAtom(selectedSessionIdAtom);
 
   const handleClose = () => {
     mutation.reset();
@@ -23,7 +28,13 @@ export function DeleteSessionModal({
 
   const handleConfirm = () => {
     mutation.mutate(sessionId, {
-      onSuccess: () => handleClose(),
+      onSuccess: () => {
+        remove(sessionId);
+        if (selectedId === sessionId) {
+          setSelectedId(null);
+        }
+        handleClose();
+      },
     });
   };
 
