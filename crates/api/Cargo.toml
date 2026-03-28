@@ -8,3 +8,5 @@ data.workspace = true
 kernel.workspace = true
 registry.workspace = true
 shared.workspace = true
+uuid.workspace = true
+chrono.workspace = true
