@@ -2,23 +2,14 @@ import { Box, Flex, Text } from '@mantine/core';
 import { IconFileDiff, IconTerminal2 } from '@tabler/icons-react';
 import { CollapsiblePanel } from '@/components/panel/CollapsiblePanel';
 import { Panel } from '@/components/panel/Panel';
-import { CreateSessionModal } from '@/features/sessions/components/CreateSessionModal';
+import { SessionSidebar } from '@/features/sessions/components/SessionSidebar';
 
 const ICON_SIZE = 16;
 
 export function Layout() {
   return (
     <Flex h="100vh" style={{ overflow: 'hidden' }}>
-      {/* Sidebar */}
-      <Panel w="15vw" miw={200} bg="dark.8">
-        <Panel.Header justify="space-between">
-          <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-            Worktrees
-          </Text>
-          <CreateSessionModal />
-        </Panel.Header>
-        <Box p={8}>Sidebar content</Box>
-      </Panel>
+      <SessionSidebar />
 
       <Panel.Divider />
 

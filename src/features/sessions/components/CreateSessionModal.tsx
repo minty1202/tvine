@@ -2,13 +2,16 @@ import { Button, Modal, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
-import { createSession } from '@/features/sessions/api/createSession';
 import {
   createSessionSchema,
   type CreateSessionValues,
 } from '@/features/sessions/utils/createSessionSchema';
 
-export function CreateSessionModal() {
+interface CreateSessionModalProps {
+  onSubmit: (values: CreateSessionValues) => Promise<void>;
+}
+
+export function CreateSessionModal({ onSubmit }: CreateSessionModalProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
   const form = useForm<CreateSessionValues>({
@@ -25,7 +28,7 @@ export function CreateSessionModal() {
   };
 
   const handleSubmit = async (values: CreateSessionValues) => {
-    await createSession(values);
+    await onSubmit(values);
     handleClose();
   };
 
