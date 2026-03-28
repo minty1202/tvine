@@ -36,7 +36,9 @@ pub fn create_session(
 
     // session.json 保存（失敗時はロールバック）
     if let Err(e) = registry.session_repository().create(&session) {
-        let _ = registry.git_repository().remove_worktree(&worktree_path);
+        let _ = registry
+            .git_repository()
+            .force_remove_worktree(&worktree_path);
         return Err(e);
     }
 
@@ -109,7 +111,7 @@ mod tests {
             .expect_create_worktree()
             .returning(|_, _, _| Ok(()));
         git_mock
-            .expect_remove_worktree()
+            .expect_force_remove_worktree()
             .times(1)
             .returning(|_| Ok(()));
 

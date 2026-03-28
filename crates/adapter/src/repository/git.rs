@@ -24,9 +24,9 @@ impl GitRepository for GitRepositoryImpl {
             .map_err(|e| AppError::GitError(e.to_string()))
     }
 
-    fn remove_worktree(&self, path: &Path) -> AppResult<()> {
+    fn force_remove_worktree(&self, path: &Path) -> AppResult<()> {
         self.git
-            .remove_worktree(path)
+            .force_remove_worktree(path)
             .map_err(|e| AppError::GitError(e.to_string()))
     }
 }

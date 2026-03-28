@@ -8,5 +8,5 @@ pub trait GitRepository: Send + Sync {
     fn project_root(&self) -> PathBuf;
     fn default_branch(&self) -> String;
     fn create_worktree(&self, base_branch: &str, branch_name: &str, path: &Path) -> AppResult<()>;
-    fn remove_worktree(&self, path: &Path) -> AppResult<()>;
+    fn force_remove_worktree(&self, path: &Path) -> AppResult<()>;
 }
