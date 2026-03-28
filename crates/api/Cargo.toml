@@ -10,3 +10,6 @@ registry.workspace = true
 shared.workspace = true
 uuid.workspace = true
 chrono.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

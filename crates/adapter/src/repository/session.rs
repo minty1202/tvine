@@ -37,19 +37,10 @@ mod tests {
     use std::path::PathBuf;
     use std::sync::Arc;
 
-    fn setup() -> PathBuf {
-        shared::utility::test_dir().unwrap()
-    }
-
-    fn cleanup(test_dir: &std::path::Path) {
-        let _ = std::fs::remove_dir_all(test_dir);
-    }
-
     #[test]
     fn create_delegates_to_save_session() {
-        let test_dir = setup().join("session_repo");
-        std::fs::create_dir_all(&test_dir).unwrap();
-        let app = Arc::new(AppContext::new(test_dir.clone()));
+        let tmp = tempfile::tempdir().unwrap();
+        let app = Arc::new(AppContext::new(tmp.path().to_path_buf()));
         let repo_root = PathBuf::from("/Users/aki/dev/test");
         let id = ProjectId::from(repo_root.as_path());
         let ctx = ProjectContext::new(app, id, repo_root);
@@ -71,7 +62,5 @@ mod tests {
             .join("adapter-test-uuid")
             .join("session.json")
             .exists());
-
-        cleanup(&test_dir);
     }
 }

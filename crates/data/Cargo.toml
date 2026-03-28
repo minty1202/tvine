@@ -9,4 +9,4 @@ serde.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]
-shared.workspace = true
+tempfile.workspace = true
