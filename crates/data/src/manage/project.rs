@@ -37,9 +37,7 @@ mod tests {
     use std::sync::Arc;
 
     fn setup() -> PathBuf {
-        let test_dir = shared::utility::test_dir().unwrap();
-        let _ = std::fs::remove_dir_all(&test_dir);
-        test_dir
+        shared::utility::test_dir().unwrap()
     }
 
     fn cleanup(test_dir: &std::path::Path) {
