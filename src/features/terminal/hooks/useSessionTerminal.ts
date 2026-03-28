@@ -59,7 +59,7 @@ export function useSessionTerminal() {
 
     const terminal = new Terminal({
       cursorBlink: true,
-      fontSize: 13,
+      fontSize: 14,
       fontFamily: "'JetBrains Mono', monospace",
     });
     const fitAddon = new FitAddon();
