@@ -4,6 +4,22 @@ use std::io;
 
 const SESSION_CONFIG_FILE: &str = "session.json";
 
+pub fn get_session(ctx: &ProjectContext, session_id: &str) -> io::Result<Option<Session>> {
+    let config_path = ctx
+        .storage_dir()
+        .join(SESSIONS_DIR_NAME)
+        .join(session_id)
+        .join(SESSION_CONFIG_FILE);
+
+    if !config_path.exists() {
+        return Ok(None);
+    }
+
+    let json = std::fs::read_to_string(&config_path)?;
+    let session: Session = serde_json::from_str(&json).map_err(io::Error::other)?;
+    Ok(Some(session))
+}
+
 pub fn list_sessions(ctx: &ProjectContext) -> io::Result<Vec<Session>> {
     let sessions_dir = ctx.storage_dir().join(SESSIONS_DIR_NAME);
     if !sessions_dir.exists() {
@@ -120,6 +136,29 @@ mod tests {
 
         let sessions = list_sessions(&ctx).unwrap();
         assert!(sessions.is_empty());
+    }
+
+    #[test]
+    fn get_session_returns_saved_session() {
+        let tmp = tempfile::tempdir().unwrap();
+        let ctx = make_ctx(tmp.path());
+
+        save_session(&ctx, &make_session("uuid-get", "feature/get")).unwrap();
+
+        let result = get_session(&ctx, "uuid-get").unwrap();
+        assert!(result.is_some());
+        let session = result.unwrap();
+        assert_eq!(session.id.as_str(), "uuid-get");
+        assert_eq!(session.branch_name, "feature/get");
+    }
+
+    #[test]
+    fn get_session_returns_none_when_not_found() {
+        let tmp = tempfile::tempdir().unwrap();
+        let ctx = make_ctx(tmp.path());
+
+        let result = get_session(&ctx, "nonexistent").unwrap();
+        assert!(result.is_none());
     }
 
     #[test]

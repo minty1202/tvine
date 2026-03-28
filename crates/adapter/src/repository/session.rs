@@ -1,4 +1,4 @@
-use data::manage::session::{delete_session, list_sessions, save_session};
+use data::manage::session::{delete_session, get_session, list_sessions, save_session};
 use data::ProjectContext;
 use kernel::model::session::{Session, SessionId};
 use kernel::repository::session::SessionRepository;
@@ -17,6 +17,11 @@ impl SessionRepositoryImpl {
 impl SessionRepository for SessionRepositoryImpl {
     fn create(&self, session: &Session) -> AppResult<()> {
         save_session(&self.project_context, session).map_err(|e| AppError::IoError(e.to_string()))
+    }
+
+    fn get(&self, id: &SessionId) -> AppResult<Option<Session>> {
+        get_session(&self.project_context, id.as_str())
+            .map_err(|e| AppError::IoError(e.to_string()))
     }
 
     fn list(&self) -> AppResult<Vec<Session>> {
