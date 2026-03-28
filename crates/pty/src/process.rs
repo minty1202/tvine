@@ -35,11 +35,19 @@ impl PtyProcess {
         }
         cmd.cwd(worktree_path);
 
-        let child = pair
+        let mut child = pair
             .slave
             .spawn_command(cmd)
             .map_err(|e| PtyError::SpawnFailed(e.to_string()))?;
         drop(pair.slave);
+
+        // プロセスが即座に終了していないか確認
+        std::thread::sleep(std::time::Duration::from_millis(500));
+        if let Ok(Some(_)) = child.try_wait() {
+            return Err(PtyError::SpawnFailed(
+                "Process exited immediately".to_string(),
+            ));
+        }
 
         let reader = pair
             .master

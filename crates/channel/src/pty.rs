@@ -24,7 +24,15 @@ pub fn spawn(
 
     let pty = registry.pty_repository();
     let mut manager = pty.lock().unwrap();
-    let reader = manager.spawn(session_id, &session.worktree_path, cols, rows, resume)?;
+
+    let reader = match manager.spawn(session_id, &session.worktree_path, cols, rows, resume) {
+        Ok(reader) => reader,
+        Err(_) if resume => {
+            // --resume が失敗した場合、--session-id にフォールバック
+            manager.spawn(session_id, &session.worktree_path, cols, rows, false)?
+        }
+        Err(e) => return Err(e),
+    };
 
     if !session.claude_launched {
         session.claude_launched = true;
