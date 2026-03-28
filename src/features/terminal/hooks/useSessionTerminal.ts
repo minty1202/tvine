@@ -40,8 +40,8 @@ export function useSessionTerminal() {
   );
 
   const create = useCallback(
-    async (sessionId: string) => {
-      if (terminals.has(sessionId)) return;
+    async (sessionId: string, { force = false } = {}) => {
+      if (!force && terminals.has(sessionId)) return;
 
       const terminal = new Terminal({
         cursorBlink: true,
@@ -117,7 +117,7 @@ export function useSessionTerminal() {
       });
 
       // 新しい Terminal を作成
-      await create(sessionId);
+      await create(sessionId, { force: true });
     },
     [terminals, setTerminals, setExitedSessions, create],
   );
