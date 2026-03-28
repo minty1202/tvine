@@ -34,6 +34,9 @@ fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
 
     app.manage(app_registry);
 
+    let app_handle: routes::pty::AppHandleState = Arc::new(app.handle().clone());
+    app.manage(app_handle);
+
     Ok(())
 }
 
