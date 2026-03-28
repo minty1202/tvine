@@ -28,10 +28,6 @@ impl SessionRepository for SessionRepositoryImpl {
         list_sessions(&self.project_context).map_err(|e| AppError::IoError(e.to_string()))
     }
 
-    fn update(&self, session: &Session) -> AppResult<()> {
-        save_session(&self.project_context, session).map_err(|e| AppError::IoError(e.to_string()))
-    }
-
     fn delete(&self, id: &SessionId) -> AppResult<()> {
         delete_session(&self.project_context, id.as_str())
             .map_err(|e| AppError::IoError(e.to_string()))
@@ -61,7 +57,6 @@ mod tests {
             base_branch: "main".to_string(),
             worktree_path: PathBuf::from("/Users/aki/dev/test-feature-test"),
             created_at: "2026-03-28T12:00:00Z".to_string(),
-            claude_launched: false,
         };
 
         let result = repo.create(&session);

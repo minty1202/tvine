@@ -86,7 +86,6 @@ mod tests {
             base_branch: "main".to_string(),
             worktree_path: PathBuf::from(format!("/Users/aki/dev/test-{}", branch)),
             created_at: "2026-03-28T12:00:00Z".to_string(),
-            claude_launched: false,
         }
     }
 
@@ -101,7 +100,6 @@ mod tests {
             base_branch: "main".to_string(),
             worktree_path: PathBuf::from("/Users/aki/dev/test-feature-login"),
             created_at: "2026-03-28T12:00:00Z".to_string(),
-            claude_launched: false,
         };
 
         let result = save_session(&ctx, &session);

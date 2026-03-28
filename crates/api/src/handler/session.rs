@@ -69,7 +69,6 @@ pub fn create_session(
         base_branch: base_branch.to_string(),
         worktree_path: worktree_path.clone(),
         created_at,
-        claude_launched: false,
     };
 
     // session.json 保存（失敗時はロールバック）
@@ -177,7 +176,6 @@ mod tests {
             base_branch: "main".to_string(),
             worktree_path: worktree_path.clone(),
             created_at: "2026-03-28T12:00:00Z".to_string(),
-            claude_launched: false,
         };
 
         let mut git_mock = MockGitRepository::new();
@@ -207,7 +205,6 @@ mod tests {
             base_branch: "main".to_string(),
             worktree_path: PathBuf::from("/nonexistent/worktree"),
             created_at: "2026-03-28T12:00:00Z".to_string(),
-            claude_launched: false,
         };
 
         let git_mock = MockGitRepository::new();
@@ -247,7 +244,6 @@ mod tests {
             base_branch: "main".to_string(),
             worktree_path: tmp.path().to_path_buf(),
             created_at: "2026-03-28T12:00:00Z".to_string(),
-            claude_launched: false,
         };
 
         let mut git_mock = MockGitRepository::new();
@@ -280,7 +276,6 @@ mod tests {
             base_branch: "main".to_string(),
             worktree_path: tmp1.path().to_path_buf(),
             created_at: "2026-03-28T14:00:00Z".to_string(),
-            claude_launched: false,
         };
         let session_a = Session {
             id: SessionId::new("uuid-a".to_string()),
@@ -288,7 +283,6 @@ mod tests {
             base_branch: "main".to_string(),
             worktree_path: tmp2.path().to_path_buf(),
             created_at: "2026-03-28T12:00:00Z".to_string(),
-            claude_launched: false,
         };
 
         let git_mock = MockGitRepository::new();
@@ -319,7 +313,6 @@ mod tests {
             base_branch: "main".to_string(),
             worktree_path: tmp.path().to_path_buf(),
             created_at: "2026-03-28T12:00:00Z".to_string(),
-            claude_launched: false,
         };
         let orphan = Session {
             id: SessionId::new("orphan-id".to_string()),
@@ -327,7 +320,6 @@ mod tests {
             base_branch: "main".to_string(),
             worktree_path: PathBuf::from("/nonexistent/worktree"),
             created_at: "2026-03-28T13:00:00Z".to_string(),
-            claude_launched: false,
         };
 
         let git_mock = MockGitRepository::new();
