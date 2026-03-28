@@ -2,12 +2,15 @@ import { Alert, Button, Modal, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import type { UseMutationResult } from '@tanstack/react-query';
+import { useSetAtom } from 'jotai';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import {
   type CreateSessionValues,
   createSessionSchema,
 } from '@/features/sessions/utils/createSessionSchema';
+import { useSessionTerminal } from '@/features/terminal/hooks/useSessionTerminal';
 import type { Session } from '@/generated/Session';
+import { selectedSessionIdAtom } from '@/stores/sessionStore';
 
 interface CreateSessionModalProps {
   mutation: UseMutationResult<Session, unknown, CreateSessionValues>;
@@ -15,6 +18,8 @@ interface CreateSessionModalProps {
 
 export function CreateSessionModal({ mutation }: CreateSessionModalProps) {
   const [opened, { open, close }] = useDisclosure(false);
+  const setSelectedId = useSetAtom(selectedSessionIdAtom);
+  const { create } = useSessionTerminal();
 
   const form = useForm<CreateSessionValues>({
     initialValues: {
@@ -32,7 +37,11 @@ export function CreateSessionModal({ mutation }: CreateSessionModalProps) {
 
   const handleSubmit = (values: CreateSessionValues) => {
     mutation.mutate(values, {
-      onSuccess: () => handleClose(),
+      onSuccess: (session) => {
+        setSelectedId(session.id);
+        create(session.id);
+        handleClose();
+      },
     });
   };
 
