@@ -4,8 +4,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import { theme } from '@/config/theme/mantine';
-import type { Session } from '@/features/sessions/api/createSession';
 import type { CreateSessionValues } from '@/features/sessions/utils/createSessionSchema';
+import type { Session } from '@/generated/Session';
 import { CreateSessionModal } from './CreateSessionModal';
 
 type SessionMutation = UseMutationResult<Session, Error, CreateSessionValues>;
