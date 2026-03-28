@@ -1,24 +1,21 @@
 import { Button, Modal, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
-import { validateBranchName } from '@/features/sessions/utils/validateBranchName';
-
-type FormValues = {
-  baseBranch: string;
-  branchName: string;
-};
+import { zod4Resolver } from 'mantine-form-zod-resolver';
+import {
+  createSessionSchema,
+  type CreateSessionValues,
+} from '@/features/sessions/utils/createSessionSchema';
 
 export function CreateSessionModal() {
   const [opened, { open, close }] = useDisclosure(false);
 
-  const form = useForm<FormValues>({
+  const form = useForm<CreateSessionValues>({
     initialValues: {
       baseBranch: 'main',
       branchName: '',
     },
-    validate: {
-      branchName: validateBranchName,
-    },
+    validate: zod4Resolver(createSessionSchema),
   });
 
   const handleClose = () => {
@@ -26,7 +23,7 @@ export function CreateSessionModal() {
     close();
   };
 
-  const handleSubmit = (values: FormValues) => {
+  const handleSubmit = (values: CreateSessionValues) => {
     console.log('submit', values);
     handleClose();
   };
