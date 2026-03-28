@@ -2,6 +2,7 @@ import { Box, Flex, Text } from '@mantine/core';
 import { IconFileDiff, IconTerminal2 } from '@tabler/icons-react';
 import { CollapsiblePanel } from '@/components/panel/CollapsiblePanel';
 import { Panel } from '@/components/panel/Panel';
+import { CreateSessionModal } from '@/features/sessions/components/CreateSessionModal';
 
 const ICON_SIZE = 16;
 
@@ -14,6 +15,7 @@ export function Layout() {
           <Text size="xs" fw={600} c="dimmed" tt="uppercase">
             Worktrees
           </Text>
+          <CreateSessionModal />
         </Panel.Header>
         <Box p={8}>Sidebar content</Box>
       </Panel>
