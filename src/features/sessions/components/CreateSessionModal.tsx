@@ -3,8 +3,8 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import {
-  createSessionSchema,
   type CreateSessionValues,
+  createSessionSchema,
 } from '@/features/sessions/utils/createSessionSchema';
 
 interface CreateSessionModalProps {
@@ -38,7 +38,12 @@ export function CreateSessionModal({ onSubmit }: CreateSessionModalProps) {
         + New
       </Button>
 
-      <Modal opened={opened} onClose={handleClose} title="新しいセッション" centered>
+      <Modal
+        opened={opened}
+        onClose={handleClose}
+        title="新しいセッション"
+        centered
+      >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
             <TextInput
