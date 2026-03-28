@@ -21,5 +21,6 @@ pub fn delete_session(
     session_id: String,
     state: tauri::State<'_, AppRegistryState>,
 ) -> Result<(), String> {
+    let _ = channel::pty::kill(&**state, &session_id);
     api::handler::session::delete_session(&**state, &session_id).map_err(|e| e.to_string())
 }
