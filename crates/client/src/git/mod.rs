@@ -15,7 +15,7 @@ pub trait Client {
     fn project_root(&self) -> PathBuf;
     fn default_branch(&self) -> String;
     fn create_worktree(&self, base_branch: &str, branch_name: &str, path: &Path) -> GitResult<()>;
-    fn remove_worktree(&self, path: &Path) -> GitResult<()>;
+    fn force_remove_worktree(&self, path: &Path) -> GitResult<()>;
 }
 
 impl ClientImpl {
@@ -37,7 +37,8 @@ impl Client for ClientImpl {
         let work_dir_path = repo
             .workdir()
             .expect("discover 成功後のため workdir は常に Some を返す");
-        work_dir_path.to_path_buf()
+        // git2 の workdir() は末尾スラッシュ付きパスを返すことがあるため正規化する
+        work_dir_path.components().collect()
     }
 
     fn default_branch(&self) -> String {
@@ -77,7 +78,7 @@ impl Client for ClientImpl {
         Ok(())
     }
 
-    fn remove_worktree(&self, path: &Path) -> GitResult<()> {
+    fn force_remove_worktree(&self, path: &Path) -> GitResult<()> {
         let output = std::process::Command::new("git")
             .args(["worktree", "remove", "--force", &path.to_string_lossy()])
             .output()
