@@ -24,4 +24,6 @@ pub struct Session {
     pub base_branch: String,
     pub worktree_path: PathBuf,
     pub created_at: String,
+    #[serde(default)]
+    pub claude_launched: bool,
 }

@@ -14,19 +14,24 @@ pub fn spawn(
     cols: u16,
     rows: u16,
 ) -> AppResult<Box<dyn Read + Send>> {
-    let session = registry
+    let session_id_obj = kernel::model::session::SessionId::new(session_id.to_string());
+    let mut session = registry
         .session_repository()
-        .get(&kernel::model::session::SessionId::new(
-            session_id.to_string(),
-        ))?
+        .get(&session_id_obj)?
         .ok_or_else(|| AppError::NotFound(format!("Session not found: {session_id}")))?;
 
-    // TODO: claude_launched フラグによる resume 判断は後続で実装
-    let resume = false;
+    let resume = session.claude_launched;
 
     let pty = registry.pty_repository();
     let mut manager = pty.lock().unwrap();
-    manager.spawn(session_id, &session.worktree_path, cols, rows, resume)
+    let reader = manager.spawn(session_id, &session.worktree_path, cols, rows, resume)?;
+
+    if !session.claude_launched {
+        session.claude_launched = true;
+        registry.session_repository().update(&session)?;
+    }
+
+    Ok(reader)
 }
 
 pub fn write(registry: &dyn AppRegistry, session_id: &str, data: &[u8]) -> AppResult<()> {
@@ -70,6 +75,7 @@ mod tests {
             base_branch: "main".to_string(),
             worktree_path: PathBuf::from("/tmp/worktree"),
             created_at: "2026-01-01T00:00:00Z".to_string(),
+            claude_launched: false,
         }
     }
 
@@ -91,17 +97,44 @@ mod tests {
     }
 
     #[test]
-    fn spawn_succeeds_with_valid_session() {
+    fn spawn_succeeds_with_new_session() {
         let mut session_mock = MockSessionRepository::new();
         session_mock
             .expect_get()
             .returning(|id| Ok(Some(make_session(id.as_str()))));
+        session_mock.expect_update().returning(|_| Ok(()));
 
         let mut pty_mock = MockPtyRepository::new();
-        pty_mock.expect_spawn().returning(|_, _, _, _, _| {
-            let reader: Box<dyn Read + Send> = Box::new(std::io::empty());
-            Ok(reader)
+        pty_mock
+            .expect_spawn()
+            .withf(|_, _, _, _, resume| !resume)
+            .returning(|_, _, _, _, _| {
+                let reader: Box<dyn Read + Send> = Box::new(std::io::empty());
+                Ok(reader)
+            });
+
+        let registry = setup_registry(session_mock, pty_mock);
+        let result = spawn(&registry, "test-session", 80, 24);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn spawn_uses_resume_when_claude_launched() {
+        let mut session_mock = MockSessionRepository::new();
+        session_mock.expect_get().returning(|id| {
+            let mut session = make_session(id.as_str());
+            session.claude_launched = true;
+            Ok(Some(session))
         });
+
+        let mut pty_mock = MockPtyRepository::new();
+        pty_mock
+            .expect_spawn()
+            .withf(|_, _, _, _, resume| *resume)
+            .returning(|_, _, _, _, _| {
+                let reader: Box<dyn Read + Send> = Box::new(std::io::empty());
+                Ok(reader)
+            });
 
         let registry = setup_registry(session_mock, pty_mock);
         let result = spawn(&registry, "test-session", 80, 24);
