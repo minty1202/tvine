@@ -1,12 +1,15 @@
+mod routes;
+
 use std::sync::Arc;
 
 use api::operator;
 use client::git::{Client as GitClientTrait, ClientImpl as GitClient};
 use data::{AppContext, ProjectContext, ProjectId};
-use registry::BootstrapRegistryImpl;
+use registry::{AppRegistryImpl, AppRegistryState, BootstrapRegistryImpl};
 use shared::utility;
+use tauri::Manager;
 
-fn setup(_app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let home_dir = utility::home_dir()?;
 
     let app_ctx = AppContext::new(home_dir.clone());
@@ -24,6 +27,10 @@ fn setup(_app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
 
     operator::initialize_project(&project_ctx, &default_branch)?;
 
+    let app_registry: AppRegistryState =
+        Arc::new(AppRegistryImpl::new(Box::new(git_client), project_ctx));
+    app.manage(app_registry);
+
     Ok(())
 }
 
@@ -32,6 +39,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .setup(setup)
+        .invoke_handler(routes::handler())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
