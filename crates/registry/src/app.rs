@@ -1,12 +1,14 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use adapter::repository::{
-    git::GitRepositoryImpl, health::HealthCheckRepositoryImpl, session::SessionRepositoryImpl,
+    git::GitRepositoryImpl, health::HealthCheckRepositoryImpl, pty::PtyRepositoryImpl,
+    session::SessionRepositoryImpl,
 };
 use client::git::Client as GitClient;
 use data::ProjectContext;
 use kernel::repository::{
-    git::GitRepository, health::HealthCheckRepository, session::SessionRepository,
+    git::GitRepository, health::HealthCheckRepository, pty::PtyRepository,
+    session::SessionRepository,
 };
 
 #[derive(Clone)]
@@ -14,6 +16,7 @@ pub struct AppRegistryImpl {
     health_check_repository: Arc<dyn HealthCheckRepository>,
     git_repository: Arc<dyn GitRepository>,
     session_repository: Arc<dyn SessionRepository>,
+    pty_repository: Arc<Mutex<dyn PtyRepository>>,
     project_context: ProjectContext,
 }
 
@@ -26,11 +29,14 @@ impl AppRegistryImpl {
         let health_check_repository = Arc::new(HealthCheckRepositoryImpl::new());
         let git_repository = Arc::new(GitRepositoryImpl::new(git_client));
         let session_repository = Arc::new(SessionRepositoryImpl::new(project_context.clone()));
+        let pty_repository: Arc<Mutex<dyn PtyRepository>> =
+            Arc::new(Mutex::new(PtyRepositoryImpl::new()));
 
         Self {
             health_check_repository,
             git_repository,
             session_repository,
+            pty_repository,
             project_context,
         }
     }
@@ -41,6 +47,7 @@ pub trait AppRegistry {
     fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository>;
     fn git_repository(&self) -> Arc<dyn GitRepository>;
     fn session_repository(&self) -> Arc<dyn SessionRepository>;
+    fn pty_repository(&self) -> Arc<Mutex<dyn PtyRepository>>;
     fn project_context(&self) -> &ProjectContext;
 }
 
@@ -55,6 +62,10 @@ impl AppRegistry for AppRegistryImpl {
 
     fn session_repository(&self) -> Arc<dyn SessionRepository> {
         self.session_repository.clone()
+    }
+
+    fn pty_repository(&self) -> Arc<Mutex<dyn PtyRepository>> {
+        self.pty_repository.clone()
     }
 
     fn project_context(&self) -> &ProjectContext {
