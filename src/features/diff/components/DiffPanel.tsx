@@ -7,9 +7,7 @@ const ICON_SIZE = 16;
 const ICON = <IconFileDiff size={ICON_SIZE} />;
 
 export function DiffPanelToggle() {
-  return (
-    <CollapsiblePanel.Toggle panelKey={PANEL_KEY} icon={ICON} defaultOpened />
-  );
+  return <CollapsiblePanel.Toggle panelKey={PANEL_KEY} icon={ICON} />;
 }
 
 export function DiffPanel() {
@@ -18,7 +16,6 @@ export function DiffPanel() {
       panelKey={PANEL_KEY}
       title="Changes"
       icon={ICON}
-      defaultOpened
       bg="dark.8"
     >
       <Box p={8} style={{ flex: 1 }}>
