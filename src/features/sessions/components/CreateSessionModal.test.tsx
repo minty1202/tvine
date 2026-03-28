@@ -8,7 +8,7 @@ import type { CreateSessionValues } from '@/features/sessions/utils/createSessio
 import type { Session } from '@/generated/Session';
 import { CreateSessionModal } from './CreateSessionModal';
 
-type SessionMutation = UseMutationResult<Session, Error, CreateSessionValues>;
+type SessionMutation = UseMutationResult<Session, unknown, CreateSessionValues>;
 
 function baseMutation(): SessionMutation {
   return {
@@ -84,7 +84,7 @@ describe('CreateSessionModal', () => {
     mutation.isError = true;
     mutation.isIdle = false;
     mutation.status = 'error';
-    mutation.error = new Error('branch already exists');
+    mutation.error = 'branch already exists';
     renderModal(mutation);
 
     await user.click(screen.getByText('+ New'));
@@ -99,7 +99,7 @@ describe('CreateSessionModal', () => {
     mutation.isError = true;
     mutation.isIdle = false;
     mutation.status = 'error';
-    mutation.error = new Error('some error');
+    mutation.error = 'some error';
     renderModal(mutation);
 
     await user.click(screen.getByText('+ New'));

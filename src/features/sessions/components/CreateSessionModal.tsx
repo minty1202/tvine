@@ -10,7 +10,7 @@ import {
 import type { Session } from '@/generated/Session';
 
 interface CreateSessionModalProps {
-  mutation: UseMutationResult<Session, Error, CreateSessionValues>;
+  mutation: UseMutationResult<Session, unknown, CreateSessionValues>;
 }
 
 export function CreateSessionModal({ mutation }: CreateSessionModalProps) {
@@ -52,7 +52,7 @@ export function CreateSessionModal({ mutation }: CreateSessionModalProps) {
           <Stack gap="md">
             {mutation.isError && (
               <Alert color="red" variant="light">
-                {mutation.error.message}
+                {String(mutation.error)}
               </Alert>
             )}
             <TextInput
