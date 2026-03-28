@@ -1,0 +1,148 @@
+# #25 Claude 端末（PTY + xterm.js）
+
+## 完了時の状態
+
+- セッション一覧でカードをクリックすると、中央エリアに Claude Code が起動して表示される
+- xterm.js 上でそのまま Claude Code を操作できる（入力・許可確認・コード表示等）
+- 別のセッションに切り替えると表示が切り替わり、前のプロセスはバックグラウンドで動き続ける
+- 切り替え戻すと出力履歴が残った状態で表示される
+- Claude Code が終了（`/exit` 等）したら、中央エリアに終了画面と再開ボタンが表示される
+- tvine を再起動しても、セッション選択で再接続できる
+
+## チェックリスト
+
+- [ ] [`pty` クレートの作成と PTY プロセス管理](#pty-クレートの作成と-pty-プロセス管理)
+- [ ] [Tauri 層: IPC コマンドとイベント](#tauri-層-ipc-コマンドとイベント)
+- [ ] [フロントエンド: xterm.js の表示と入力](#フロントエンド-xtermjs-の表示と入力)
+- [ ] [セッション切り替え](#セッション切り替え)
+- [ ] [終了検知と再開](#終了検知と再開)
+- [ ] [セッション削除時の PTY 終了](#セッション削除時の-pty-終了)
+
+## 未決
+- xterm.js の入力互換性（Shift+Enter 等の特殊キー）は実装時に検証
+- xterm.js の Terminal インスタンスの保持方法（React 外の `Map<SessionId, Terminal>` が候補。re-render との競合、`terminal.dispose()` のタイミング等を実装時に判断する）
+
+## 方針
+
+### `pty` クレートの作成と PTY プロセス管理
+
+#### 方針
+
+- 新規 `pty` クレートを作成する。`client` クレートと同列のインフラ層
+- PTY ライブラリは `portable-pty`（Wez Furlong 作。クロスプラットフォーム対応、wezterm で実績あり）
+- Tauri には依存しない。PTY の操作（起動・読み書き・リサイズ）に専念する
+
+#### 実装方法
+
+##### クレート構成
+
+- `crates/pty/` に配置
+- workspace の `members` と `src-tauri/Cargo.toml` の `dependencies` に追加
+- `portable-pty` を依存に追加
+
+##### PtyProcess
+
+- `portable-pty` で PTY を作成し、子プロセスとして Claude Code を起動
+- 起動コマンド: 初回は `claude --session-id <uuid>`、再接続は `claude --resume <uuid>`
+- 判断基準: session.json に `claude_launched: bool` フラグを持たせる。`false`（未起動）なら `--session-id`、`true`（起動済み）なら `--resume`。初回起動成功時に `true` に更新する
+- 作業ディレクトリ: `session.worktree_path`
+- writer（入力書き込み）とリサイズ用のハンドルを保持
+- reader は spawn 時に呼び出し元に返し、別スレッドで読み取りループを回す（PtyManager 側の Mutex ロック時間を最小化するため）
+
+##### PtyManager
+
+- `HashMap<SessionId, PtyProcess>` でセッションごとのプロセスを管理
+- `Arc<std::sync::Mutex<>>` で Tauri state として共有（既存パターンに合わせて同期 Mutex。ロック内でブロッキング I/O はしない）
+- spawn メソッド内で reader を取得し、`std::thread::spawn` で読み取りループを起動する。ループ内から `app_handle.emit()` で出力を送信（`AppHandle` は `Send + Sync` なのでスレッド間で安全に使える）
+- セッション選択時に PTY がなければ起動、あればスキップ
+- 操作: 起動 / 書き込み / リサイズ / 削除
+
+### Tauri 層: IPC コマンドとイベント
+
+#### 方針
+
+- 既存の routes パターン（`src-tauri/src/routes/`）に合わせる
+- PTY の出力は Tauri Event で push、入力は invoke で受ける
+
+#### 実装方法
+
+##### コマンド（フロントエンド → Rust）
+
+| コマンド | 用途 |
+| --- | --- |
+| `spawn_pty(session_id)` | PTY 起動 |
+| `write_pty(session_id, data)` | xterm.js の入力を PTY に書き込む |
+| `resize_pty(session_id, cols, rows)` | ターミナルサイズ変更を反映 |
+
+##### イベント（Rust → フロントエンド）
+
+| イベント | payload | 用途 |
+| --- | --- | --- |
+| `pty-output` | `{ session_id, data }` | PTY 出力を xterm.js に送る |
+| `pty-exit` | `{ session_id }` | プロセス終了通知 |
+
+- 全セッションの出力を単一イベントに流す（セッション数は数個〜十数個の想定で問題ない）
+- `PtyManager` を `app.manage()` で登録。`spawn_pty` 時に `app_handle` を渡して、読み取りスレッドから `emit` できるようにする
+
+### フロントエンド: xterm.js の表示と入力
+
+#### 方針
+
+- `xterm` + `@xterm/addon-fit` を導入
+- `src/features/terminal/` に配置
+- xterm.js の初期化・イベントリスナーはカスタム hook に隠蔽（CLAUDE.md: コンポーネント内で `useEffect` を直接書かない）
+- 詳細は実装時に調整する前提
+
+#### 実装方法
+
+- `ClaudeTerminal` コンポーネントをメインエリアに配置
+- `pty-output` イベントをリッスンし、`session_id` が一致するデータを `terminal.write()` に渡す
+- xterm.js の `onData` で入力を受け取り、`invoke("write_pty")` で送信
+- xterm.js の `onResize` + `@xterm/addon-fit` でサイズ変更を検知し、`invoke("resize_pty")` で送信
+
+### セッション切り替え
+
+#### 方針
+
+- セッションごとに xterm.js の `Terminal` インスタンスを保持する
+- 切り替え時は表示だけを差し替え、前のプロセスはバックグラウンドで継続
+- 出力バッファは Terminal インスタンスに残るので、戻したときに履歴が見える
+
+#### 実装方法
+
+- セッション切り替え時に、対象セッションの Terminal インスタンスを DOM コンテナに `terminal.open(element)` し直す
+- Terminal インスタンスの保持方法は未決（上記参照）
+
+### 終了検知と再開
+
+#### 方針
+
+- PTY の読み取りループで EOF を検知したらプロセス終了と判断する
+- 終了後は xterm.js エリアに終了画面 + 再開ボタンを表示する
+- カード選択と再起動は混ぜない（カードは「表示の切り替え」、再開は「終了画面上の明示的操作」）
+
+#### 実装方法
+
+- EOF 検知で `pty-exit` イベントを emit
+- フロントエンドで `pty-exit` を受け取り、終了画面に差し替え
+- 再開ボタンで `spawn_pty(sessionId)` を再呼び出し
+
+### セッション削除時の PTY 終了
+
+#### 方針
+
+- セッション削除時に PTY プロセスが起動中であれば、先に kill してから worktree・session.json を削除する
+
+#### 実装方法
+
+- 既存の `delete_session` ハンドラー（`api::handler`）は PtyManager を知らないため、routes 層で PTY 終了 → delete_session の順に呼ぶ。既存の「routes → api handler に委譲」パターンとは異なるが、PtyManager は Tauri state であり api 層に持ち込むべきでないため、この構成が妥当
+- PtyManager からプロセスを終了・除去した後、既存の `delete_session` ハンドラーで worktree・session.json を削除する
+
+## 実装順
+
+1. `pty` クレート（PtyProcess + PtyManager）
+2. Tauri IPC（routes + イベント）
+3. フロントエンド（xterm.js 表示 + 入力）
+4. セッション切り替え
+5. 終了検知と再開
+6. セッション削除時の PTY 終了
