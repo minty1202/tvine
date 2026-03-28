@@ -12,6 +12,9 @@ pub enum AppError {
     #[error("Git エラー: {0}")]
     GitError(String),
 
+    #[error("{0}")]
+    NotFound(String),
+
     #[error("予期せぬエラーが発生しました。")]
     InternalError,
 }

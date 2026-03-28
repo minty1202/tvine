@@ -30,7 +30,7 @@ client = { path = "./crates/client" }
 
 # 外部依存
 tokio = { version = "1.49.0", features = ["rt-multi-thread", "macros"] }
-tauri = { version = "2", features = ["custom-protocol"] }
+tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -45,3 +45,4 @@ git2 = "0.20"
 uuid = { version = "1", features = ["v4"] }
 chrono = "0.4"
 tempfile = "3"
+ts-rs = "10"

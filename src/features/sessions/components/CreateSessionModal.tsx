@@ -3,14 +3,14 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import type { UseMutationResult } from '@tanstack/react-query';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
-import type { Session } from '@/features/sessions/api/createSession';
 import {
   type CreateSessionValues,
   createSessionSchema,
 } from '@/features/sessions/utils/createSessionSchema';
+import type { Session } from '@/generated/Session';
 
 interface CreateSessionModalProps {
-  mutation: UseMutationResult<Session, Error, CreateSessionValues>;
+  mutation: UseMutationResult<Session, unknown, CreateSessionValues>;
 }
 
 export function CreateSessionModal({ mutation }: CreateSessionModalProps) {
@@ -52,7 +52,7 @@ export function CreateSessionModal({ mutation }: CreateSessionModalProps) {
           <Stack gap="md">
             {mutation.isError && (
               <Alert color="red" variant="light">
-                {mutation.error.message}
+                {String(mutation.error)}
               </Alert>
             )}
             <TextInput

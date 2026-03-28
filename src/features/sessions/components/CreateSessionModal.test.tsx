@@ -4,11 +4,11 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import { theme } from '@/config/theme/mantine';
-import type { Session } from '@/features/sessions/api/createSession';
 import type { CreateSessionValues } from '@/features/sessions/utils/createSessionSchema';
+import type { Session } from '@/generated/Session';
 import { CreateSessionModal } from './CreateSessionModal';
 
-type SessionMutation = UseMutationResult<Session, Error, CreateSessionValues>;
+type SessionMutation = UseMutationResult<Session, unknown, CreateSessionValues>;
 
 function baseMutation(): SessionMutation {
   return {
@@ -84,7 +84,7 @@ describe('CreateSessionModal', () => {
     mutation.isError = true;
     mutation.isIdle = false;
     mutation.status = 'error';
-    mutation.error = new Error('branch already exists');
+    mutation.error = 'branch already exists';
     renderModal(mutation);
 
     await user.click(screen.getByText('+ New'));
@@ -99,7 +99,7 @@ describe('CreateSessionModal', () => {
     mutation.isError = true;
     mutation.isIdle = false;
     mutation.status = 'error';
-    mutation.error = new Error('some error');
+    mutation.error = 'some error';
     renderModal(mutation);
 
     await user.click(screen.getByText('+ New'));

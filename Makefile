@@ -17,6 +17,9 @@ test:
 	pnpm test
 	cargo test
 
+generate:
+	cargo test -p kernel export_bindings
+
 BACKEND_CRATES = --workspace --exclude tvine
 
 frontend-ci:
