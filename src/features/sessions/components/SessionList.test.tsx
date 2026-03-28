@@ -30,6 +30,7 @@ function makeSession(id: string, branchName: string): Session {
     base_branch: 'main',
     worktree_path: `/tmp/${branchName}`,
     created_at: '2026-01-01T00:00:00Z',
+    claude_launched: false,
   };
 }
 
