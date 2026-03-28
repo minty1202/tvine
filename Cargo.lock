@@ -4591,10 +4591,10 @@ name = "tvine"
 version = "0.1.0"
 dependencies = [
  "api",
+ "channel",
  "client",
  "data",
  "kernel",
- "pty",
  "registry",
  "serde",
  "serde_json",
