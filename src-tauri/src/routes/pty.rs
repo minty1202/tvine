@@ -22,10 +22,8 @@ struct PtyExitPayload {
 #[tauri::command]
 pub fn spawn_pty(
     session_id: String,
-    worktree_path: String,
     cols: u16,
     rows: u16,
-    resume: bool,
     state: tauri::State<'_, AppRegistryState>,
     handle_state: tauri::State<'_, AppHandleState>,
 ) -> Result<(), String> {
@@ -33,15 +31,8 @@ pub fn spawn_pty(
         return Ok(());
     }
 
-    let reader = channel::pty::spawn(
-        &**state,
-        &session_id,
-        std::path::Path::new(&worktree_path),
-        cols,
-        rows,
-        resume,
-    )
-    .map_err(|e| e.to_string())?;
+    let reader =
+        channel::pty::spawn(&**state, &session_id, cols, rows).map_err(|e| e.to_string())?;
 
     let app_handle = (**handle_state).clone();
     start_read_loop(reader, session_id, app_handle);

@@ -1,7 +1,6 @@
 use registry::app::AppRegistry;
-use shared::error::AppResult;
+use shared::error::{AppError, AppResult};
 use std::io::Read;
-use std::path::Path;
 
 pub fn has(registry: &dyn AppRegistry, session_id: &str) -> bool {
     let pty = registry.pty_repository();
@@ -12,14 +11,22 @@ pub fn has(registry: &dyn AppRegistry, session_id: &str) -> bool {
 pub fn spawn(
     registry: &dyn AppRegistry,
     session_id: &str,
-    worktree_path: &Path,
     cols: u16,
     rows: u16,
-    resume: bool,
 ) -> AppResult<Box<dyn Read + Send>> {
+    let session = registry
+        .session_repository()
+        .get(&kernel::model::session::SessionId::new(
+            session_id.to_string(),
+        ))?
+        .ok_or_else(|| AppError::NotFound(format!("Session not found: {session_id}")))?;
+
+    // TODO: claude_launched フラグによる resume 判断は後続で実装
+    let resume = false;
+
     let pty = registry.pty_repository();
     let mut manager = pty.lock().unwrap();
-    manager.spawn(session_id, worktree_path, cols, rows, resume)
+    manager.spawn(session_id, &session.worktree_path, cols, rows, resume)
 }
 
 pub fn write(registry: &dyn AppRegistry, session_id: &str, data: &[u8]) -> AppResult<()> {

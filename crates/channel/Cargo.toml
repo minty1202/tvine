@@ -7,3 +7,6 @@ edition.workspace = true
 kernel.workspace = true
 registry.workspace = true
 shared.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
