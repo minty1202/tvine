@@ -18,7 +18,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri.workspace = true
+tauri = { version = "2", features = [] }
 tauri-plugin-opener.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -29,3 +29,6 @@ data.workspace = true
 kernel.workspace = true
 registry.workspace = true
 shared.workspace = true
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
