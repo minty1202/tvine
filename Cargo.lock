@@ -13,6 +13,7 @@ dependencies = [
  "exec",
  "kernel",
  "shared",
+ "tempfile",
 ]
 
 [[package]]
@@ -119,6 +120,7 @@ dependencies = [
  "kernel",
  "registry",
  "shared",
+ "tempfile",
  "uuid",
 ]
 
@@ -788,7 +790,7 @@ dependencies = [
  "kernel",
  "serde",
  "serde_json",
- "shared",
+ "tempfile",
 ]
 
 [[package]]
@@ -3579,7 +3581,6 @@ name = "shared"
 version = "0.1.0"
 dependencies = [
  "dirs",
- "git2",
  "serde",
  "thiserror 2.0.18",
 ]

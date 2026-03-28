@@ -36,22 +36,17 @@ mod tests {
     use std::path::PathBuf;
     use std::sync::Arc;
 
-    fn setup() -> PathBuf {
-        shared::utility::test_dir().unwrap()
-    }
-
-    fn cleanup(test_dir: &std::path::Path) {
-        let _ = std::fs::remove_dir_all(test_dir);
+    fn make_ctx(base: &std::path::Path) -> ProjectContext {
+        let app = Arc::new(AppContext::new(base.to_path_buf()));
+        let repo_root = PathBuf::from("/Users/aki/dev/test");
+        let id = ProjectId::from(repo_root.as_path());
+        ProjectContext::new(app, id, repo_root)
     }
 
     #[test]
     fn ensure_project_dir_creates_structure() {
-        let test_dir = setup().join("creates_structure");
-        std::fs::create_dir_all(&test_dir).unwrap();
-        let app = Arc::new(AppContext::new(test_dir.clone()));
-        let repo_root = PathBuf::from("/Users/aki/dev/test");
-        let id = ProjectId::from(repo_root.as_path());
-        let ctx = ProjectContext::new(app, id, repo_root);
+        let tmp = tempfile::tempdir().unwrap();
+        let ctx = make_ctx(tmp.path());
 
         let result = ensure_project_dir(&ctx, "main");
         assert!(result.is_ok());
@@ -66,23 +61,15 @@ mod tests {
         .unwrap();
         assert_eq!(config["root"], "/Users/aki/dev/test");
         assert_eq!(config["default_branch"], "main");
-
-        cleanup(&test_dir);
     }
 
     #[test]
     fn ensure_project_dir_is_idempotent() {
-        let test_dir = setup().join("idempotent");
-        std::fs::create_dir_all(&test_dir).unwrap();
-        let app = Arc::new(AppContext::new(test_dir.clone()));
-        let repo_root = PathBuf::from("/Users/aki/dev/test");
-        let id = ProjectId::from(repo_root.as_path());
-        let ctx = ProjectContext::new(app, id, repo_root);
+        let tmp = tempfile::tempdir().unwrap();
+        let ctx = make_ctx(tmp.path());
 
         ensure_project_dir(&ctx, "main").unwrap();
         let result = ensure_project_dir(&ctx, "main");
         assert!(result.is_ok());
-
-        cleanup(&test_dir);
     }
 }

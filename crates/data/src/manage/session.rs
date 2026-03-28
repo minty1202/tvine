@@ -56,22 +56,27 @@ mod tests {
     use std::path::PathBuf;
     use std::sync::Arc;
 
-    fn setup() -> PathBuf {
-        shared::utility::test_dir().unwrap()
+    fn make_ctx(base: &std::path::Path) -> ProjectContext {
+        let app = Arc::new(AppContext::new(base.to_path_buf()));
+        let repo_root = PathBuf::from("/Users/aki/dev/test");
+        let id = ProjectId::from(repo_root.as_path());
+        ProjectContext::new(app, id, repo_root)
     }
 
-    fn cleanup(test_dir: &std::path::Path) {
-        let _ = std::fs::remove_dir_all(test_dir);
+    fn make_session(id: &str, branch: &str) -> Session {
+        Session {
+            id: SessionId::new(id.to_string()),
+            branch_name: branch.to_string(),
+            base_branch: "main".to_string(),
+            worktree_path: PathBuf::from(format!("/Users/aki/dev/test-{}", branch)),
+            created_at: "2026-03-28T12:00:00Z".to_string(),
+        }
     }
 
     #[test]
     fn save_session_creates_session_json() {
-        let test_dir = setup().join("save_session");
-        std::fs::create_dir_all(&test_dir).unwrap();
-        let app = Arc::new(AppContext::new(test_dir.clone()));
-        let repo_root = PathBuf::from("/Users/aki/dev/test");
-        let id = ProjectId::from(repo_root.as_path());
-        let ctx = ProjectContext::new(app, id, repo_root);
+        let tmp = tempfile::tempdir().unwrap();
+        let ctx = make_ctx(tmp.path());
 
         let session = Session {
             id: SessionId::new("test-uuid-1234".to_string()),
@@ -94,61 +99,33 @@ mod tests {
         assert_eq!(saved["id"], "test-uuid-1234");
         assert_eq!(saved["branch_name"], "feature/login");
         assert_eq!(saved["base_branch"], "main");
-
-        cleanup(&test_dir);
-    }
-
-    fn make_session(id: &str, branch: &str) -> Session {
-        Session {
-            id: SessionId::new(id.to_string()),
-            branch_name: branch.to_string(),
-            base_branch: "main".to_string(),
-            worktree_path: PathBuf::from(format!("/Users/aki/dev/test-{}", branch)),
-            created_at: "2026-03-28T12:00:00Z".to_string(),
-        }
     }
 
     #[test]
     fn list_sessions_returns_saved_sessions() {
-        let test_dir = setup().join("list_sessions");
-        std::fs::create_dir_all(&test_dir).unwrap();
-        let app = Arc::new(AppContext::new(test_dir.clone()));
-        let repo_root = PathBuf::from("/Users/aki/dev/test");
-        let id = ProjectId::from(repo_root.as_path());
-        let ctx = ProjectContext::new(app, id, repo_root);
+        let tmp = tempfile::tempdir().unwrap();
+        let ctx = make_ctx(tmp.path());
 
         save_session(&ctx, &make_session("uuid-1", "feature/a")).unwrap();
         save_session(&ctx, &make_session("uuid-2", "feature/b")).unwrap();
 
         let sessions = list_sessions(&ctx).unwrap();
         assert_eq!(sessions.len(), 2);
-
-        cleanup(&test_dir);
     }
 
     #[test]
     fn list_sessions_returns_empty_when_no_sessions_dir() {
-        let test_dir = setup().join("list_empty");
-        std::fs::create_dir_all(&test_dir).unwrap();
-        let app = Arc::new(AppContext::new(test_dir.clone()));
-        let repo_root = PathBuf::from("/Users/aki/dev/test");
-        let id = ProjectId::from(repo_root.as_path());
-        let ctx = ProjectContext::new(app, id, repo_root);
+        let tmp = tempfile::tempdir().unwrap();
+        let ctx = make_ctx(tmp.path());
 
         let sessions = list_sessions(&ctx).unwrap();
         assert!(sessions.is_empty());
-
-        cleanup(&test_dir);
     }
 
     #[test]
     fn delete_session_removes_session_dir() {
-        let test_dir = setup().join("delete_session");
-        std::fs::create_dir_all(&test_dir).unwrap();
-        let app = Arc::new(AppContext::new(test_dir.clone()));
-        let repo_root = PathBuf::from("/Users/aki/dev/test");
-        let id = ProjectId::from(repo_root.as_path());
-        let ctx = ProjectContext::new(app, id, repo_root);
+        let tmp = tempfile::tempdir().unwrap();
+        let ctx = make_ctx(tmp.path());
 
         save_session(&ctx, &make_session("uuid-del", "feature/x")).unwrap();
         assert!(ctx
@@ -158,7 +135,5 @@ mod tests {
 
         delete_session(&ctx, "uuid-del").unwrap();
         assert!(!ctx.storage_dir().join("sessions/uuid-del").exists());
-
-        cleanup(&test_dir);
     }
 }

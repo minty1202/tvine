@@ -12,3 +12,6 @@ shared.workspace = true
 
 async-trait.workspace = true
 derive-new.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

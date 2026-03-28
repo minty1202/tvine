@@ -54,14 +54,6 @@ mod tests {
     use std::path::PathBuf;
     use std::sync::Arc;
 
-    fn setup() -> std::path::PathBuf {
-        shared::utility::test_dir().unwrap()
-    }
-
-    fn cleanup(test_dir: &std::path::Path) {
-        let _ = std::fs::remove_dir_all(test_dir);
-    }
-
     // テスト用の BootstrapRegistry 実装
     // MockBootstrapRegistry は &dyn Prerequisite の返却が難しいため、手動で用意する
     struct TestBootstrapRegistry {
@@ -179,27 +171,22 @@ mod tests {
     // initialize_project がプロジェクトディレクトリを作成する
     #[test]
     fn initialize_project_creates_project_directory() {
-        let test_dir = setup().join("init_project");
-        std::fs::create_dir_all(&test_dir).unwrap();
-        let app = Arc::new(AppContext::new(test_dir.clone()));
-        let repo_root = std::path::PathBuf::from("/Users/aki/dev/test");
+        let tmp = tempfile::tempdir().unwrap();
+        let app = Arc::new(AppContext::new(tmp.path().to_path_buf()));
+        let repo_root = PathBuf::from("/Users/aki/dev/test");
         let id = ProjectId::from(repo_root.as_path());
         let ctx = ProjectContext::new(app, id, repo_root);
 
         let result = initialize_project(&ctx, "main");
         assert!(result.is_ok());
         assert!(ctx.storage_dir().join("project.json").exists());
-
-        cleanup(&test_dir);
     }
 
     // initialize_project が IO エラー時に AppError::IoError を返す
     #[test]
     fn initialize_project_returns_io_error_on_failure() {
-        let app = Arc::new(AppContext::new(std::path::PathBuf::from(
-            "/nonexistent/path",
-        )));
-        let repo_root = std::path::PathBuf::from("/Users/aki/dev/test");
+        let app = Arc::new(AppContext::new(PathBuf::from("/nonexistent/path")));
+        let repo_root = PathBuf::from("/Users/aki/dev/test");
         let id = ProjectId::from(repo_root.as_path());
         let ctx = ProjectContext::new(app, id, repo_root);
 
@@ -246,9 +233,8 @@ mod tests {
     // 有効なセッション（worktree が存在する）は削除されない
     #[test]
     fn reconcile_sessions_keeps_valid_sessions() {
-        let test_dir = setup().join("reconcile_valid");
-        std::fs::create_dir_all(&test_dir).unwrap();
-        let valid = make_session("valid-id", test_dir.clone());
+        let tmp = tempfile::tempdir().unwrap();
+        let valid = make_session("valid-id", tmp.path().to_path_buf());
 
         let mut session_mock = MockSessionRepository::new();
         session_mock
@@ -265,7 +251,5 @@ mod tests {
 
         let result = reconcile_sessions(&registry);
         assert!(result.is_ok());
-
-        cleanup(&test_dir);
     }
 }
