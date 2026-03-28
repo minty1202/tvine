@@ -3,6 +3,7 @@ import { IconFileDiff, IconTerminal2 } from '@tabler/icons-react';
 import { CollapsiblePanel } from '@/components/panel/CollapsiblePanel';
 import { Panel } from '@/components/panel/Panel';
 import { SessionSidebar } from '@/features/sessions/components/SessionSidebar';
+import { MainTerminalPanel } from '@/features/terminal/components/MainTerminalPanel';
 
 const ICON_SIZE = 16;
 
@@ -13,28 +14,7 @@ export function Layout() {
 
       <Panel.Divider />
 
-      {/* Main - Claude Terminal */}
-      <Panel style={{ flex: 1, minWidth: 0 }}>
-        <Panel.Header gap={10} bg="dark.8">
-          <CollapsiblePanel.Toggle
-            panelKey="changes"
-            icon={<IconFileDiff size={ICON_SIZE} />}
-            defaultOpened
-          />
-          <CollapsiblePanel.Toggle
-            panelKey="terminal"
-            icon={<IconTerminal2 size={ICON_SIZE} />}
-          />
-          <Text size="xs" c="dimmed">
-            feature/login
-          </Text>
-        </Panel.Header>
-        <Box bg="dark.9" style={{ flex: 1, padding: 12 }}>
-          <Text size="sm" c="dimmed">
-            Terminal area
-          </Text>
-        </Box>
-      </Panel>
+      <MainTerminalPanel />
 
       <Panel.Divider />
 
