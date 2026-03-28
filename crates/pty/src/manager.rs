@@ -8,6 +8,12 @@ pub struct PtyManager {
     processes: HashMap<String, PtyProcess>,
 }
 
+impl Default for PtyManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PtyManager {
     pub fn new() -> Self {
         Self {
@@ -27,8 +33,7 @@ impl PtyManager {
         rows: u16,
         resume: bool,
     ) -> PtyResult<Box<dyn Read + Send>> {
-        let (process, reader) =
-            PtyProcess::spawn(session_id, worktree_path, cols, rows, resume)?;
+        let (process, reader) = PtyProcess::spawn(session_id, worktree_path, cols, rows, resume)?;
         self.processes.insert(session_id.to_string(), process);
         Ok(reader)
     }

@@ -28,12 +28,7 @@ pub fn write(registry: &dyn AppRegistry, session_id: &str, data: &[u8]) -> AppRe
     manager.write(session_id, data)
 }
 
-pub fn resize(
-    registry: &dyn AppRegistry,
-    session_id: &str,
-    cols: u16,
-    rows: u16,
-) -> AppResult<()> {
+pub fn resize(registry: &dyn AppRegistry, session_id: &str, cols: u16, rows: u16) -> AppResult<()> {
     let pty = registry.pty_repository();
     let manager = pty.lock().unwrap();
     manager.resize(session_id, cols, rows)

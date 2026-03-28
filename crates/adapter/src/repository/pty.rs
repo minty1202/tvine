@@ -4,15 +4,14 @@ use shared::error::{AppError, AppResult};
 use std::io::Read;
 use std::path::Path;
 
+#[derive(Default)]
 pub struct PtyRepositoryImpl {
     manager: PtyManager,
 }
 
 impl PtyRepositoryImpl {
     pub fn new() -> Self {
-        Self {
-            manager: PtyManager::new(),
-        }
+        Self::default()
     }
 }
 
