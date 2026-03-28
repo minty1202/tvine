@@ -1,7 +1,8 @@
 use client::git::Client as GitClient;
 use derive_new::new;
 use kernel::repository::git::GitRepository;
-use std::path::PathBuf;
+use shared::error::{AppError, AppResult};
+use std::path::{Path, PathBuf};
 
 #[derive(new)]
 pub struct GitRepositoryImpl {
@@ -15,6 +16,18 @@ impl GitRepository for GitRepositoryImpl {
 
     fn default_branch(&self) -> String {
         self.git.default_branch()
+    }
+
+    fn create_worktree(&self, base_branch: &str, branch_name: &str, path: &Path) -> AppResult<()> {
+        self.git
+            .create_worktree(base_branch, branch_name, path)
+            .map_err(|e| AppError::GitError(e.to_string()))
+    }
+
+    fn force_remove_worktree(&self, path: &Path) -> AppResult<()> {
+        self.git
+            .force_remove_worktree(path)
+            .map_err(|e| AppError::GitError(e.to_string()))
     }
 }
 

@@ -1,17 +1,19 @@
-import { Button, Modal, Stack, TextInput } from '@mantine/core';
+import { Alert, Button, Modal, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
+import type { UseMutationResult } from '@tanstack/react-query';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
+import type { Session } from '@/features/sessions/api/createSession';
 import {
   type CreateSessionValues,
   createSessionSchema,
 } from '@/features/sessions/utils/createSessionSchema';
 
 interface CreateSessionModalProps {
-  onSubmit: (values: CreateSessionValues) => Promise<void>;
+  mutation: UseMutationResult<Session, Error, CreateSessionValues>;
 }
 
-export function CreateSessionModal({ onSubmit }: CreateSessionModalProps) {
+export function CreateSessionModal({ mutation }: CreateSessionModalProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
   const form = useForm<CreateSessionValues>({
@@ -24,12 +26,14 @@ export function CreateSessionModal({ onSubmit }: CreateSessionModalProps) {
 
   const handleClose = () => {
     form.reset();
+    mutation.reset();
     close();
   };
 
-  const handleSubmit = async (values: CreateSessionValues) => {
-    await onSubmit(values);
-    handleClose();
+  const handleSubmit = (values: CreateSessionValues) => {
+    mutation.mutate(values, {
+      onSuccess: () => handleClose(),
+    });
   };
 
   return (
@@ -46,6 +50,11 @@ export function CreateSessionModal({ onSubmit }: CreateSessionModalProps) {
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
+            {mutation.isError && (
+              <Alert color="red" variant="light">
+                {mutation.error.message}
+              </Alert>
+            )}
             <TextInput
               label="ベースブランチ"
               {...form.getInputProps('baseBranch')}
@@ -55,7 +64,7 @@ export function CreateSessionModal({ onSubmit }: CreateSessionModalProps) {
               placeholder="feature/xxx"
               {...form.getInputProps('branchName')}
             />
-            <Button fullWidth type="submit">
+            <Button fullWidth type="submit" loading={mutation.isPending}>
               作成する
             </Button>
           </Stack>

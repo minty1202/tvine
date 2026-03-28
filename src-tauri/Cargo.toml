@@ -26,5 +26,6 @@ serde_json.workspace = true
 api.workspace = true
 client.workspace = true
 data.workspace = true
+kernel.workspace = true
 registry.workspace = true
 shared.workspace = true

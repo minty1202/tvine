@@ -1,14 +1,12 @@
+use kernel::model::session::Session;
 use registry::AppRegistryState;
 
 #[tauri::command]
 pub fn create_session(
     base_branch: String,
     branch_name: String,
-    _state: tauri::State<'_, AppRegistryState>,
-) -> Result<(), String> {
-    println!(
-        "create_session: base_branch={}, branch_name={}",
-        base_branch, branch_name
-    );
-    Ok(())
+    state: tauri::State<'_, AppRegistryState>,
+) -> Result<Session, String> {
+    api::handler::session::create_session(&**state, &base_branch, &branch_name)
+        .map_err(|e| e.to_string())
 }

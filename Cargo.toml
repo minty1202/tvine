@@ -42,3 +42,5 @@ anyhow = "1.0"
 thiserror = "2"
 dirs = "6.0.0"
 git2 = "0.20"
+uuid = { version = "1", features = ["v4"] }
+chrono = "0.4"

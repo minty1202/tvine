@@ -1,4 +1,5 @@
 pub mod project;
+pub mod session;
 
 use crate::AppContext;
 use std::io;

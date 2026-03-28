@@ -4,7 +4,7 @@ import { CreateSessionModal } from '@/features/sessions/components/CreateSession
 import { useCreateSession } from '@/features/sessions/hooks/useCreateSession';
 
 export function SessionSidebar() {
-  const { createSession } = useCreateSession();
+  const mutation = useCreateSession();
 
   return (
     <Panel w="15vw" miw={200} bg="dark.8">
@@ -12,7 +12,7 @@ export function SessionSidebar() {
         <Text size="xs" fw={600} c="dimmed" tt="uppercase">
           Worktrees
         </Text>
-        <CreateSessionModal onSubmit={createSession} />
+        <CreateSessionModal mutation={mutation} />
       </Panel.Header>
       <Box p={8}>Sidebar content</Box>
     </Panel>

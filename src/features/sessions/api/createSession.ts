@@ -5,6 +5,14 @@ export type CreateSessionParams = {
   branchName: string;
 };
 
-export function createSession(params: CreateSessionParams): Promise<void> {
-  return invoke('create_session', params);
+export type Session = {
+  id: string;
+  branch_name: string;
+  base_branch: string;
+  worktree_path: string;
+  created_at: string;
+};
+
+export function createSession(params: CreateSessionParams): Promise<Session> {
+  return invoke<Session>('create_session', params);
 }

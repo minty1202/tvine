@@ -1,14 +1,19 @@
 use std::sync::Arc;
 
-use adapter::repository::{git::GitRepositoryImpl, health::HealthCheckRepositoryImpl};
+use adapter::repository::{
+    git::GitRepositoryImpl, health::HealthCheckRepositoryImpl, session::SessionRepositoryImpl,
+};
 use client::git::Client as GitClient;
 use data::ProjectContext;
-use kernel::repository::{git::GitRepository, health::HealthCheckRepository};
+use kernel::repository::{
+    git::GitRepository, health::HealthCheckRepository, session::SessionRepository,
+};
 
 #[derive(Clone)]
 pub struct AppRegistryImpl {
     health_check_repository: Arc<dyn HealthCheckRepository>,
     git_repository: Arc<dyn GitRepository>,
+    session_repository: Arc<dyn SessionRepository>,
     project_context: ProjectContext,
 }
 
@@ -20,10 +25,12 @@ impl AppRegistryImpl {
     ) -> Self {
         let health_check_repository = Arc::new(HealthCheckRepositoryImpl::new());
         let git_repository = Arc::new(GitRepositoryImpl::new(git_client));
+        let session_repository = Arc::new(SessionRepositoryImpl::new(project_context.clone()));
 
         Self {
             health_check_repository,
             git_repository,
+            session_repository,
             project_context,
         }
     }
@@ -33,6 +40,7 @@ impl AppRegistryImpl {
 pub trait AppRegistry {
     fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository>;
     fn git_repository(&self) -> Arc<dyn GitRepository>;
+    fn session_repository(&self) -> Arc<dyn SessionRepository>;
     fn project_context(&self) -> &ProjectContext;
 }
 
@@ -43,6 +51,10 @@ impl AppRegistry for AppRegistryImpl {
 
     fn git_repository(&self) -> Arc<dyn GitRepository> {
         self.git_repository.clone()
+    }
+
+    fn session_repository(&self) -> Arc<dyn SessionRepository> {
+        self.session_repository.clone()
     }
 
     fn project_context(&self) -> &ProjectContext {
