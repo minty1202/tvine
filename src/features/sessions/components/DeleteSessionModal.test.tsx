@@ -35,7 +35,7 @@ describe('DeleteSessionModal', () => {
     const user = userEvent.setup();
     renderModal('id-1', 'feature/login');
 
-    await user.click(screen.getByText('削除'));
+    await user.click(screen.getByRole('button', { name: '削除' }));
     expect(await screen.findByText('feature/login')).toBeInTheDocument();
     expect(screen.getByText('削除する')).toBeInTheDocument();
   });
@@ -45,7 +45,7 @@ describe('DeleteSessionModal', () => {
     const user = userEvent.setup();
     renderModal('id-1', 'feature/test');
 
-    await user.click(screen.getByText('削除'));
+    await user.click(screen.getByRole('button', { name: '削除' }));
     await user.click(await screen.findByText('削除する'));
 
     await waitFor(() => {
@@ -58,7 +58,7 @@ describe('DeleteSessionModal', () => {
     const user = userEvent.setup();
     renderModal('id-1', 'feature/test');
 
-    await user.click(screen.getByText('削除'));
+    await user.click(screen.getByRole('button', { name: '削除' }));
     await screen.findByText('セッションの削除');
     await user.click(screen.getByText('削除する'));
 
@@ -72,7 +72,7 @@ describe('DeleteSessionModal', () => {
     const user = userEvent.setup();
     renderModal('id-1', 'feature/test');
 
-    await user.click(screen.getByText('削除'));
+    await user.click(screen.getByRole('button', { name: '削除' }));
     await user.click(await screen.findByText('削除する'));
 
     expect(await screen.findByText('削除に失敗しました')).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe('DeleteSessionModal', () => {
     const user = userEvent.setup();
     renderModal();
 
-    await user.click(screen.getByText('削除'));
+    await user.click(screen.getByRole('button', { name: '削除' }));
     await screen.findByText('セッションの削除');
     await user.click(screen.getByText('キャンセル'));
 

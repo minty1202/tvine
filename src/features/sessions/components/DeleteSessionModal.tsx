@@ -1,5 +1,6 @@
-import { Alert, Button, Text } from '@mantine/core';
+import { ActionIcon, Alert, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { IconTrash } from '@tabler/icons-react';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { useDeleteSession } from '@/features/sessions/hooks/useDeleteSession';
 
@@ -28,9 +29,15 @@ export function DeleteSessionModal({
 
   return (
     <>
-      <Button size="compact-xs" variant="subtle" color="red" onClick={open}>
-        削除
-      </Button>
+      <ActionIcon
+        size="sm"
+        variant="subtle"
+        color="red"
+        onClick={open}
+        aria-label="削除"
+      >
+        <IconTrash size={14} />
+      </ActionIcon>
 
       <ConfirmModal
         opened={opened}
