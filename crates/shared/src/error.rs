@@ -15,6 +15,9 @@ pub enum AppError {
     #[error("{0}")]
     NotFound(String),
 
+    #[error("PTY エラー: {0}")]
+    PtyError(String),
+
     #[error("予期せぬエラーが発生しました。")]
     InternalError,
 }

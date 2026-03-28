@@ -1,8 +1,9 @@
+use shared::error::AppResult;
 use std::io::Read;
 use std::path::Path;
 
 #[mockall::automock]
-pub trait PtyRepository: Send + Sync {
+pub trait PtyRepository: Send {
     fn has(&self, session_id: &str) -> bool;
     fn spawn(
         &mut self,
@@ -11,9 +12,9 @@ pub trait PtyRepository: Send + Sync {
         cols: u16,
         rows: u16,
         resume: bool,
-    ) -> Result<Box<dyn Read + Send>, String>;
-    fn write(&mut self, session_id: &str, data: &[u8]) -> Result<(), String>;
-    fn resize(&self, session_id: &str, cols: u16, rows: u16) -> Result<(), String>;
-    fn kill(&mut self, session_id: &str) -> Result<(), String>;
+    ) -> AppResult<Box<dyn Read + Send>>;
+    fn write(&mut self, session_id: &str, data: &[u8]) -> AppResult<()>;
+    fn resize(&self, session_id: &str, cols: u16, rows: u16) -> AppResult<()>;
+    fn kill(&mut self, session_id: &str) -> AppResult<()>;
     fn remove(&mut self, session_id: &str);
 }

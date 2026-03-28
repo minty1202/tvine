@@ -3,17 +3,16 @@ use crate::process::PtyProcess;
 use std::collections::HashMap;
 use std::io::Read;
 use std::path::Path;
-use std::sync::{Arc, Mutex};
 
 pub struct PtyManager {
     processes: HashMap<String, PtyProcess>,
 }
 
 impl PtyManager {
-    pub fn new() -> Arc<Mutex<Self>> {
-        Arc::new(Mutex::new(Self {
+    pub fn new() -> Self {
+        Self {
             processes: HashMap::new(),
-        }))
+        }
     }
 
     pub fn has(&self, session_id: &str) -> bool {
