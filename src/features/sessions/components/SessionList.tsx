@@ -2,7 +2,7 @@ import { Box, ScrollArea, Text } from '@mantine/core';
 import { useAtom } from 'jotai';
 import { SessionCard } from '@/features/sessions/components/SessionCard';
 import type { Session } from '@/generated/Session';
-import { useSessionTerminal } from '@/hooks/useSessionTerminal';
+import { useSessionTerminal } from '@/hooks/useSessionTerminal/useSessionTerminal';
 import { selectedSessionIdAtom } from '@/stores/sessionStore';
 
 function EmptySessionMessage() {

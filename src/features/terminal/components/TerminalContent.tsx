@@ -1,6 +1,6 @@
 import { Box, Button, Stack, Text } from '@mantine/core';
 import { ClaudeTerminal } from '@/features/terminal/components/ClaudeTerminal';
-import { useSessionTerminal } from '@/hooks/useSessionTerminal';
+import { useSessionTerminal } from '@/hooks/useSessionTerminal/useSessionTerminal';
 
 interface TerminalContentProps {
   sessionId: string | null;

@@ -8,7 +8,7 @@ import type { CreateSessionValues } from '@/features/sessions/utils/createSessio
 import type { Session } from '@/generated/Session';
 import { CreateSessionModal } from './CreateSessionModal';
 
-vi.mock('@/hooks/useSessionTerminal', () => ({
+vi.mock('@/hooks/useSessionTerminal/useSessionTerminal', () => ({
   useSessionTerminal: () => ({
     create: vi.fn(),
     get: vi.fn(),
