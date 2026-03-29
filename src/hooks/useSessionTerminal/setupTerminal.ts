@@ -1,7 +1,7 @@
 import { FitAddon } from '@xterm/addon-fit';
 import { Terminal } from '@xterm/xterm';
 
-export function setupTerminal() {
+export const setupTerminal = () => {
   const terminal = new Terminal({
     cursorBlink: true,
     fontSize: 14,
@@ -11,4 +11,4 @@ export function setupTerminal() {
   terminal.loadAddon(fitAddon);
 
   return { terminal, fitAddon };
-}
+};

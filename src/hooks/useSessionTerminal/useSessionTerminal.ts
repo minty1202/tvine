@@ -8,7 +8,7 @@ import {
 import { makeCreate } from './makeCreate';
 import { makeRemove } from './makeRemove';
 
-export function useSessionTerminal() {
+export const useSessionTerminal = () => {
   const [terminals, setTerminals] = useAtom(terminalsAtom);
   const [exitedSessions, setExitedSessions] = useAtom(exitedSessionsAtom);
   const setStatusMap = useSetAtom(statusMapAtom);
@@ -19,7 +19,12 @@ export function useSessionTerminal() {
   const isExited = (sessionId: string): boolean =>
     exitedSessions.has(sessionId);
 
-  const remove = makeRemove({ terminals, setTerminals, setExitedSessions });
+  const remove = makeRemove({
+    terminals,
+    setTerminals,
+    setExitedSessions,
+    setStatusMap,
+  });
 
   const create = makeCreate({
     terminals,
@@ -31,4 +36,4 @@ export function useSessionTerminal() {
   });
 
   return { get, create, remove, isExited };
-}
+};

@@ -1,3 +1,4 @@
+import type { SessionStatus } from '@/stores/statusStore';
 import type { TerminalEntry } from '@/stores/terminalStore';
 import { activityMonitor } from './ptyActivityMonitor';
 
@@ -7,10 +8,13 @@ type RemoveDeps = {
     fn: (prev: Map<string, TerminalEntry>) => Map<string, TerminalEntry>,
   ) => void;
   setExitedSessions: (fn: (prev: Set<string>) => Set<string>) => void;
+  setStatusMap: (
+    fn: (prev: Map<string, SessionStatus>) => Map<string, SessionStatus>,
+  ) => void;
 };
 
-export function makeRemove(deps: RemoveDeps) {
-  const { terminals, setTerminals, setExitedSessions } = deps;
+export const makeRemove = (deps: RemoveDeps) => {
+  const { terminals, setTerminals, setExitedSessions, setStatusMap } = deps;
 
   return (sessionId: string) => {
     activityMonitor.cleanup(sessionId);
@@ -32,5 +36,11 @@ export function makeRemove(deps: RemoveDeps) {
       next.delete(sessionId);
       return next;
     });
+
+    setStatusMap((prev) => {
+      const next = new Map(prev);
+      next.delete(sessionId);
+      return next;
+    });
   };
-}
+};

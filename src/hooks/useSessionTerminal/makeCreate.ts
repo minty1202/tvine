@@ -29,7 +29,7 @@ type CreateDeps = {
   cleanup: (sessionId: string) => void;
 };
 
-export function makeCreate(deps: CreateDeps) {
+export const makeCreate = (deps: CreateDeps) => {
   const {
     terminals,
     exitedSessions,
@@ -133,4 +133,4 @@ export function makeCreate(deps: CreateDeps) {
       return next;
     });
   };
-}
+};
