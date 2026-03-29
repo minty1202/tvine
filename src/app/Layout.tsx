@@ -1,14 +1,15 @@
 import { Flex } from '@mantine/core';
 import { Panel } from '@/components/panel/Panel';
-import {
-  DiffPanel,
-  DiffPanelToggle,
-} from '@/features/diff/components/DiffPanel';
+// TODO: diff・shell パネルは未実装
+// import {
+//   DiffPanel,
+//   DiffPanelToggle,
+// } from '@/features/diff/components/DiffPanel';
 import { SessionSidebar } from '@/features/sessions/components/SessionSidebar';
-import {
-  ShellPanel,
-  ShellPanelToggle,
-} from '@/features/shell/components/ShellPanel';
+// import {
+//   ShellPanel,
+//   ShellPanelToggle,
+// } from '@/features/shell/components/ShellPanel';
 import { MainTerminalPanel } from '@/features/terminal/components/MainTerminalPanel';
 
 export function Layout() {
@@ -19,21 +20,13 @@ export function Layout() {
       <Panel.Divider />
 
       <MainTerminalPanel
-        panelToggles={
-          <>
-            <DiffPanelToggle />
-            <ShellPanelToggle />
-          </>
-        }
+      // panelToggles={
+      //   <>
+      //     <DiffPanelToggle />
+      //     <ShellPanelToggle />
+      //   </>
+      // }
       />
-
-      <Panel.Divider />
-
-      <DiffPanel />
-
-      <Panel.Divider />
-
-      <ShellPanel />
     </Flex>
   );
 }
