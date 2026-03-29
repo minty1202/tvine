@@ -1,15 +1,11 @@
 import { listen } from '@tauri-apps/api/event';
-import { FitAddon } from '@xterm/addon-fit';
-import { Terminal } from '@xterm/xterm';
-import { useAtom } from 'jotai';
 import { resizePty } from '@/features/terminal/api/resizePty';
 import { spawnPty } from '@/features/terminal/api/spawnPty';
 import { writePty } from '@/features/terminal/api/writePty';
-import {
-  exitedSessionsAtom,
-  type TerminalEntry,
-  terminalsAtom,
-} from '@/stores/terminalStore';
+import type { SessionStatus } from '@/stores/statusStore';
+import type { TerminalEntry } from '@/stores/terminalStore';
+import { activityMonitor } from './ptyActivityMonitor';
+import { setupTerminal } from './setupTerminal';
 
 type PtyOutputPayload = {
   session_id: string;
@@ -20,50 +16,34 @@ type PtyExitPayload = {
   session_id: string;
 };
 
-export function useSessionTerminal() {
-  const [terminals, setTerminals] = useAtom(terminalsAtom);
-  const [exitedSessions, setExitedSessions] = useAtom(exitedSessionsAtom);
+type CreateDeps = {
+  terminals: Map<string, TerminalEntry>;
+  exitedSessions: Set<string>;
+  setTerminals: (
+    fn: (prev: Map<string, TerminalEntry>) => Map<string, TerminalEntry>,
+  ) => void;
+  setExitedSessions: (fn: (prev: Set<string>) => Set<string>) => void;
+  setStatusMap: (
+    fn: (prev: Map<string, SessionStatus>) => Map<string, SessionStatus>,
+  ) => void;
+  cleanup: (sessionId: string) => void;
+};
 
-  const get = (sessionId: string): TerminalEntry | undefined => {
-    return terminals.get(sessionId);
-  };
+export const makeCreate = (deps: CreateDeps) => {
+  const {
+    terminals,
+    exitedSessions,
+    setTerminals,
+    setExitedSessions,
+    setStatusMap,
+    cleanup,
+  } = deps;
 
-  const isExited = (sessionId: string): boolean => {
-    return exitedSessions.has(sessionId);
-  };
-
-  const cleanup = (sessionId: string) => {
-    const entry = terminals.get(sessionId);
-    if (entry) {
-      entry.unlisten();
-      entry.terminal.dispose();
-    }
-
-    setTerminals((prev) => {
-      const next = new Map(prev);
-      next.delete(sessionId);
-      return next;
-    });
-
-    setExitedSessions((prev) => {
-      const next = new Set(prev);
-      next.delete(sessionId);
-      return next;
-    });
-  };
-
-  const create = async (sessionId: string) => {
-    // 既存エントリがあればクリーンアップしてから作り直す
+  return async (sessionId: string) => {
     if (terminals.has(sessionId) && !exitedSessions.has(sessionId)) return;
     cleanup(sessionId);
 
-    const terminal = new Terminal({
-      cursorBlink: true,
-      fontSize: 14,
-      fontFamily: "'JetBrains Mono', monospace",
-    });
-    const fitAddon = new FitAddon();
-    terminal.loadAddon(fitAddon);
+    const { terminal, fitAddon } = setupTerminal();
 
     terminal.onData((data) => {
       const bytes = Array.from(new TextEncoder().encode(data));
@@ -79,6 +59,33 @@ export function useSessionTerminal() {
       (event) => {
         if (event.payload.session_id === sessionId) {
           terminal.write(new Uint8Array(event.payload.data));
+
+          activityMonitor.onPtyOutput(sessionId, {
+            onEvaluating: () => {
+              setStatusMap((prev) => {
+                if (prev.get(sessionId) === 'Evaluating') return prev;
+                const next = new Map(prev);
+                next.set(sessionId, 'Evaluating');
+                return next;
+              });
+            },
+            onBusy: () => {
+              setStatusMap((prev) => {
+                if (prev.get(sessionId) === 'Busy') return prev;
+                const next = new Map(prev);
+                next.set(sessionId, 'Busy');
+                return next;
+              });
+            },
+            onIdle: () => {
+              setStatusMap((prev) => {
+                if (prev.get(sessionId) === 'Idle') return prev;
+                const next = new Map(prev);
+                next.set(sessionId, 'Idle');
+                return next;
+              });
+            },
+          });
         }
       },
     );
@@ -96,9 +103,15 @@ export function useSessionTerminal() {
 
     const unlistenExit = await listen<PtyExitPayload>('pty-exit', (event) => {
       if (event.payload.session_id === sessionId) {
+        activityMonitor.cleanup(sessionId);
         setExitedSessions((prev) => {
           const next = new Set(prev);
           next.add(sessionId);
+          return next;
+        });
+        setStatusMap((prev) => {
+          const next = new Map(prev);
+          next.set(sessionId, 'Idle');
           return next;
         });
       }
@@ -120,10 +133,4 @@ export function useSessionTerminal() {
       return next;
     });
   };
-
-  const remove = (sessionId: string) => {
-    cleanup(sessionId);
-  };
-
-  return { get, create, remove, isExited };
-}
+};

@@ -9,7 +9,7 @@ import {
   createSessionSchema,
 } from '@/features/sessions/utils/createSessionSchema';
 import type { Session } from '@/generated/Session';
-import { useSessionTerminal } from '@/hooks/useSessionTerminal';
+import { useSessionTerminal } from '@/hooks/useSessionTerminal/useSessionTerminal';
 import { selectedSessionIdAtom } from '@/stores/sessionStore';
 
 interface CreateSessionModalProps {

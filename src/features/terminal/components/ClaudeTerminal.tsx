@@ -1,5 +1,5 @@
 import { Box } from '@mantine/core';
-import { useSessionTerminal } from '@/hooks/useSessionTerminal';
+import { useSessionTerminal } from '@/hooks/useSessionTerminal/useSessionTerminal';
 import '@xterm/xterm/css/xterm.css';
 
 interface ClaudeTerminalProps {
