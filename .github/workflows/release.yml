@@ -8,17 +8,8 @@ jobs:
   release:
     permissions:
       contents: write
-    strategy:
-      matrix:
-        include:
-          - platform: macos-latest
-            args: --target aarch64-apple-darwin
-          - platform: macos-latest
-            args: --target x86_64-apple-darwin
-          # TODO: Linux 対応時に有効化
-          # - platform: ubuntu-latest
-          #   args: ''
-    runs-on: ${{ matrix.platform }}
+    # TODO: Linux 対応時に matrix に追加
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -32,8 +23,6 @@ jobs:
           cache: pnpm
 
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: aarch64-apple-darwin,x86_64-apple-darwin
 
       - uses: Swatinem/rust-cache@v2
 
@@ -55,4 +44,4 @@ jobs:
           releaseBody: 'See the assets to download this version.'
           releaseDraft: true
           prerelease: false
-          args: ${{ matrix.args }}
+          args: --target aarch64-apple-darwin
