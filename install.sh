@@ -78,7 +78,11 @@ if [ ! -d "$BIN_DIR" ]; then
   sudo mkdir -p "$BIN_DIR"
 fi
 
-sudo ln -sf "${INSTALL_DIR}/${APP_NAME}.app/Contents/MacOS/${APP_NAME}" "${BIN_DIR}/${APP_NAME}"
+cat <<SCRIPT | sudo tee "${BIN_DIR}/${APP_NAME}" > /dev/null
+#!/bin/bash
+open "${INSTALL_DIR}/${APP_NAME}.app" "\$@"
+SCRIPT
+sudo chmod +x "${BIN_DIR}/${APP_NAME}"
 
 # --- 完了 ---
 
