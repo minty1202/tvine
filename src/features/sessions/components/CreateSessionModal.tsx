@@ -66,11 +66,15 @@ export function CreateSessionModal({ mutation }: CreateSessionModalProps) {
             )}
             <TextInput
               label="ベースブランチ"
+              autoCapitalize="off"
+              autoCorrect="off"
               {...form.getInputProps('baseBranch')}
             />
             <TextInput
               label="ブランチ名"
               placeholder="feature/xxx"
+              autoCapitalize="off"
+              autoCorrect="off"
               {...form.getInputProps('branchName')}
             />
             <Button fullWidth type="submit" loading={mutation.isPending}>
