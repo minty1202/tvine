@@ -10,6 +10,14 @@ use shared::utility;
 use tauri::Manager;
 
 fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+    if let Err(e) = setup_inner(app) {
+        show_error_dialog(&e.to_string());
+        std::process::exit(1);
+    }
+    Ok(())
+}
+
+fn setup_inner(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let home_dir = utility::home_dir()?;
 
     let app_ctx = AppContext::new(home_dir.clone());
@@ -38,6 +46,18 @@ fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     app.manage(app_handle);
 
     Ok(())
+}
+
+fn show_error_dialog(message: &str) {
+    let _ = std::process::Command::new("osascript")
+        .args([
+            "-e",
+            &format!(
+                "display dialog \"{}\" with title \"tvine\" buttons {{\"OK\"}} default button \"OK\" with icon stop",
+                message.replace('\"', "\\\"").replace('\n', " ")
+            ),
+        ])
+        .output();
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
