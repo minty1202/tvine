@@ -80,7 +80,8 @@ fi
 
 cat <<SCRIPT | sudo tee "${BIN_DIR}/${APP_NAME}" > /dev/null
 #!/bin/bash
-open "${INSTALL_DIR}/${APP_NAME}.app" "\$@"
+nohup "${INSTALL_DIR}/${APP_NAME}.app/Contents/MacOS/${APP_NAME}" "\$@" >/dev/null 2>&1 &
+disown
 SCRIPT
 sudo chmod +x "${BIN_DIR}/${APP_NAME}"
 
